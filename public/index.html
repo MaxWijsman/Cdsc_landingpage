@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0a0b0d">
+    <meta name="description" content="Explore products from the COMMIT Datascience Cell, meet the team, and develop your AI skills.">
+    <meta property="og:title" content="COMMIT Datascience Cell — Build. Connect. Explore AI.">
+    <meta property="og:description" content="Products, people, and a path into AI. Discover the COMMIT Datascience Cell.">
+    <meta property="og:type" content="website">
+    <title>COMMIT Datascience Cell — Build. Connect. Explore AI.</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./site-config.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="atmosphere" aria-hidden="true">
+      <div class="ambient-light"></div>
+      <div class="star-field">
+        <i style="--x:7%;--y:23%;--delay:-2s"></i><i style="--x:18%;--y:58%;--delay:-8s"></i>
+        <i style="--x:31%;--y:12%;--delay:-4s"></i><i style="--x:43%;--y:78%;--delay:-11s"></i>
+        <i style="--x:58%;--y:28%;--delay:-6s"></i><i style="--x:66%;--y:66%;--delay:-3s"></i>
+        <i style="--x:73%;--y:10%;--delay:-10s"></i><i style="--x:81%;--y:45%;--delay:-5s"></i>
+        <i style="--x:92%;--y:19%;--delay:-9s"></i><i style="--x:95%;--y:73%;--delay:-1s"></i>
+      </div>
+      <div class="horizon-grid"></div>
+    </div>
+
+    <header class="site-header page-width">
+      <a class="brand" href="./" aria-label="COMMIT Datascience Cell home" data-brand-link>
+        <span class="brand-image"><img src="./assets/Logo.png" width="1254" height="1254" alt="COMMIT Datascience Cell orange gear and circuit logo"></span>
+        <span class="brand-name"><strong>COMMIT</strong><span>Datascience Cell</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <span data-nav="products" aria-disabled="true">Products</span>
+        <span data-nav="team" aria-disabled="true">Team</span>
+        <span data-nav="learning" aria-disabled="true">AI Learning Track <span aria-hidden="true">↗</span></span>
+        <span data-nav="contact" aria-disabled="true">Contact</span>
+      </nav>
+      <button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false" hidden>
+        <svg class="motion-icon" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path class="pause-icon" d="M5 3v10M11 3v10"/><path class="play-icon" d="m5 3 7 5-7 5Z"/></svg>
+        <span data-motion-label>Pause motion</span>
+      </button>
+    </header>
+
+    <main id="main" class="page-width" tabindex="-1">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span> People. Data. Possibility.</p>
+          <h1 id="hero-title"><span>Build.</span><span>Connect.</span><span class="accent">Explore AI.</span></h1>
+          <p class="hero-introduction" data-introduction>Explore products from the COMMIT Datascience Cell, meet the team, and develop your AI skills.</p>
+          <a class="primary-link" href="#explore">Explore the cell <span aria-hidden="true">↘</span></a>
+          <div class="hero-footnote"><span class="small-cross" aria-hidden="true">+</span><span>Curiosity is the starting point.</span></div>
+        </div>
+
+        <figure class="hero-art">
+          <div class="art-aura" aria-hidden="true"></div>
+          <svg class="circuit-logo" id="circuit-logo" viewBox="70 110 1320 1050" role="img" aria-labelledby="logo-title logo-description">
+            <title id="logo-title">COMMIT Datascience Cell</title>
+            <desc id="logo-description">An orange gear surrounds a spark. Three connected circuit branches extend and bend outward to the right.</desc>
+            <defs>
+              <linearGradient id="gear-fill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8a20"/><stop offset=".5" stop-color="#ff7106"/><stop offset="1" stop-color="#e64f00"/></linearGradient>
+              <linearGradient id="circuit-fill" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#79716b"/><stop offset=".54" stop-color="#bfa18a"/><stop offset="1" stop-color="#ff8a32"/></linearGradient>
+              <radialGradient id="terminal-fill"><stop stop-color="#ffac57"/><stop offset="1" stop-color="#ff7208"/></radialGradient>
+              <filter id="soft-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="12"/></filter>
+            </defs>
+            <g class="technical-rings" fill="none" stroke="currentColor" aria-hidden="true">
+              <circle cx="624" cy="623" r="465" stroke-dasharray="2 15"/>
+              <path d="M159 623a465 465 0 0 1 465-465M624 1088a465 465 0 0 0 465-465"/>
+              <circle cx="624" cy="623" r="513" stroke-dasharray="80 150 2 145"/>
+              <path d="M84 623h44m496-540v44m0 992v44m496-540h44"/>
+            </g>
+            <path class="gear-shadow" fill="#ff7006" filter="url(#soft-glow)" opacity=".12" d="M562 178H687L727 277Q763 287 797 305L895 264L928 343L803 443A253 253 0 1 0 803 802L928 902L895 981L797 940Q763 959 727 968L687 1067H562L522 968Q487 959 452 940L354 981L266 893L307 795Q289 762 279 727L180 685V560L279 520Q289 485 307 450L266 352L354 264L452 305Q486 287 522 277Z"/>
+            <path class="gear" fill="url(#gear-fill)" d="M562 178H687L727 277Q763 287 797 305L895 264L928 343L803 443A253 253 0 1 0 803 802L928 902L895 981L797 940Q763 959 727 968L687 1067H562L522 968Q487 959 452 940L354 981L266 893L307 795Q289 762 279 727L180 685V560L279 520Q289 485 307 450L266 352L354 264L452 305Q486 287 522 277Z"/>
+            <path class="spark" fill="url(#gear-fill)" d="M609 463C626 563 636 600 759 625C650 644 628 669 609 789C590 673 565 651 446 626C559 601 589 574 609 463Z"/>
+            <g class="circuit-branches" fill="none" stroke="url(#circuit-fill)" stroke-width="35" stroke-linejoin="round">
+              <path data-branch="0" d="M682 555H865L955 468H1063"/>
+              <path data-branch="1" d="M773 626H1063"/>
+              <path data-branch="2" d="M682 695H865L955 785H1063"/>
+            </g>
+            <g fill="url(#terminal-fill)" stroke="#ffbd7d" stroke-width="2">
+              <circle data-terminal="0" cx="1063" cy="468" r="43"/>
+              <circle data-terminal="1" cx="1063" cy="626" r="43"/>
+              <circle data-terminal="2" cx="1063" cy="785" r="43"/>
+            </g>
+            <g class="terminal-centres" fill="#ffd0a1" aria-hidden="true">
+              <circle data-terminal-centre="0" cx="1063" cy="468" r="8"/>
+              <circle data-terminal-centre="1" cx="1063" cy="626" r="8"/>
+              <circle data-terminal-centre="2" cx="1063" cy="785" r="8"/>
+            </g>
+          </svg>
+          <figcaption><span><span class="caption-marker" aria-hidden="true"></span><span data-short-name>CDSC</span> / Ideas in motion</span><span class="art-coordinate" aria-hidden="true">[ 01 — ∞ ]</span></figcaption>
+        </figure>
+      </section>
+
+      <section class="explore-section" id="explore" aria-labelledby="explore-title">
+        <div class="section-heading"><h2 id="explore-title">Make your next connection<span class="accent">.</span></h2><span class="section-index" aria-hidden="true">01 / EXPLORE</span></div>
+        <div class="destination-grid">
+          <article class="destination" data-destination="products" aria-disabled="true">
+            <div class="destination-top"><span class="destination-number">01</span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m16 3 12 7v13l-12 7-12-7V10Zm0 14 12-7M16 17 4 10m12 7v13M10 6l12 7"/></svg><span class="destination-arrow" aria-hidden="true">↗</span></div>
+            <h3 data-destination-label>Products</h3><p data-destination-description>Explore what we're building. Discover our products and put data to work.</p>
+            <span class="destination-status" data-destination-status><span aria-hidden="true"></span>Coming soon</span>
+          </article>
+          <article class="destination" data-destination="team" aria-disabled="true">
+            <div class="destination-top"><span class="destination-number">02</span><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M7 29v-4a9 9 0 0 1 18 0v4M5 6a4 4 0 0 0 0 8M27 6a4 4 0 0 1 0 8M2 24v-3a6 6 0 0 1 5-6m23 9v-3a6 6 0 0 0-5-6"/></svg><span class="destination-arrow" aria-hidden="true">↗</span></div>
+            <h3 data-destination-label>Team</h3><p data-destination-description>Meet the people behind the cell. Different perspectives, shared curiosity.</p>
+            <span class="destination-status" data-destination-status><span aria-hidden="true"></span>Coming soon</span>
+          </article>
+          <article class="destination" data-destination="learning" aria-disabled="true">
+            <div class="destination-top"><span class="destination-number">03</span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m2 11 14-7 14 7-14 7Zm5 3v10q9 7 18 0V14m5-3v12"/></svg><span class="destination-arrow" aria-hidden="true">↗</span></div>
+            <h3 data-destination-label>AI Learning Track</h3><p data-destination-description>Take your next step in AI. Build understanding, then turn it into practice.</p>
+            <span class="destination-status" data-destination-status><span aria-hidden="true"></span>Coming soon</span>
+          </article>
+          <article class="destination" data-destination="contact" aria-disabled="true">
+            <div class="destination-top"><span class="destination-number">04</span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 5h24v17H13l-7 6v-6H4Zm6 7h12m-12 5h8"/></svg><span class="destination-arrow" aria-hidden="true">↗</span></div>
+            <h3 data-destination-label>Contact</h3><p data-destination-description>Start a conversation. Bring a question, an idea, or a new perspective.</p>
+            <span class="destination-status" data-destination-status><span aria-hidden="true"></span>Coming soon</span>
+          </article>
+        </div>
+        <noscript><p class="noscript-note">This page works without JavaScript. Destination links will be available here when configured and JavaScript is enabled.</p></noscript>
+      </section>
+    </main>
+
+    <footer class="site-footer page-width"><span>© 2026 <span data-team-name>COMMIT Datascience Cell</span></span><span class="footer-motto">Human curiosity. Connected intelligence.<span class="small-cross" aria-hidden="true">+</span></span></footer>
+  </body>
+</html>

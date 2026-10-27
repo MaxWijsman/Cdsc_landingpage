@@ -1,0 +1,11 @@
+image: alpine:3.22
+
+deploy-pages:
+  stage: deploy
+  script:
+    - test -s public/index.html
+    - test -s public/assets/Logo.png
+  pages:
+    publish: public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
