@@ -22,7 +22,7 @@
     }
   };
 
-  const destinations = Array.from(document.querySelectorAll("[data-destination]"), (placeholder) => {
+  const destinations = Array.from(document.querySelectorAll(".destinations [data-destination]"), (placeholder) => {
     const key = placeholder.dataset.destination;
     const destination = config.destinations?.[key] || {};
     const label = placeholder.querySelector("[data-label]");
@@ -39,17 +39,29 @@
     return link;
   });
 
+  const learningLink = document.getElementById("learning-link");
+  const learning = config.destinations?.learning || {};
+  const learningLabel = typeof learning.label === "string" && learning.label.trim() ? learning.label : "AI Learning Track";
+  const learningUrl = safeUrl(learning.url);
+  const learningName = learningLabel + (learningUrl ? "" : " — Coming soon");
+  learningLink.setAttribute("aria-label", learningName);
+  document.getElementById("learning-link-title").textContent = learningName;
+  learningLink.querySelector(".star-hint").textContent = learningLabel;
+  if (learningUrl) {
+    learningLink.setAttribute("href", learningUrl);
+    learningLink.removeAttribute("aria-disabled");
+  }
+  const highlightTargets = [...destinations, learningLink];
+
   const stage = document.getElementById("connection-stage");
   const logo = document.getElementById("logo-mark");
   const overlay = document.getElementById("connection-tracks");
   const paths = Array.from(document.querySelectorAll("[data-branch]"));
   const terminals = Array.from(document.querySelectorAll("[data-terminal]"));
   const routes = Array.from(document.querySelectorAll("[data-route]"));
-  // The middle circuit forks so the logo's three branches serve four links.
-  const sourceFor = [0, 1, 1, 2];
+  const sourceFor = [0, 1, 2];
   const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
   const toggle = document.getElementById("motion-toggle");
-  const motionLabel = toggle.querySelector("[data-motion-label]");
   let metrics;
   let hoveredKey = null;
   let focusedKey = null;
@@ -61,8 +73,8 @@
   let branchEnds = [{ x: 1063, y: 468 }, { x: 1063, y: 626 }, { x: 1063, y: 785 }];
 
   const highlight = () => {
-    const selected = focusedKey ?? hoveredKey ?? destinations[automaticIndex]?.dataset.destination;
-    destinations.forEach((element) => element.classList.toggle("is-highlighted", element.dataset.destination === selected));
+    const selected = focusedKey ?? hoveredKey ?? highlightTargets[automaticIndex]?.dataset.destination;
+    highlightTargets.forEach((element) => element.classList.toggle("is-highlighted", element.dataset.destination === selected));
     routes.forEach((route) => route.classList.toggle("is-highlighted", route.dataset.route === selected));
   };
 
@@ -74,7 +86,7 @@
       const x = logoLeft + (endpoint.x - 140) * scale;
       const y = logoTop + (endpoint.y - 140) * scale;
       const target = targets[index];
-      // On phones, run beside the title to the right edge of each link.
+      // On phones, run beside the logo to the right edge of each link.
       const rail = mobile ? width - 3 - index * 3 : x + (target.x - x) * (0.44 + index * 0.09);
       const shape = mobile
         ? "M" + x + " " + y + "H" + rail + "V" + target.y + "H" + target.x
@@ -128,7 +140,7 @@
     if (lastTime !== null) elapsed += Math.min(time - lastTime, 64);
     lastTime = time;
     drawBranches(elapsed / 1000);
-    const nextIndex = Math.floor(elapsed / 2200) % destinations.length;
+    const nextIndex = Math.floor(elapsed / 2200) % highlightTargets.length;
     if (nextIndex !== automaticIndex) { automaticIndex = nextIndex; highlight(); }
     frame = window.requestAnimationFrame(tick);
   };
@@ -139,21 +151,22 @@
     document.documentElement.classList.toggle("motion-paused", stopped);
     toggle.setAttribute("aria-pressed", String(paused));
     toggle.disabled = preference.matches;
-    motionLabel.textContent = preference.matches ? "Reduced motion" : userPaused ? "Resume motion" : "Pause motion";
-    toggle.setAttribute("aria-label", motionLabel.textContent);
+    const motionLabel = preference.matches ? "Reduced motion" : userPaused ? "Resume motion" : "Pause motion";
+    toggle.setAttribute("aria-label", motionLabel);
+    toggle.title = motionLabel;
     if (stopped) {
       if (frame !== null) window.cancelAnimationFrame(frame);
       frame = null;
       lastTime = null;
       if (preference.matches) { drawBranches(0, true); automaticIndex = -1; }
     } else if (frame === null) {
-      automaticIndex = Math.floor(elapsed / 2200) % destinations.length;
+      automaticIndex = Math.floor(elapsed / 2200) % highlightTargets.length;
       frame = window.requestAnimationFrame(tick);
     }
     highlight();
   };
 
-  destinations.forEach((element) => {
+  highlightTargets.forEach((element) => {
     element.addEventListener("pointerenter", () => { hoveredKey = element.dataset.destination; highlight(); });
     element.addEventListener("pointerleave", () => { hoveredKey = null; highlight(); });
     element.addEventListener("focus", () => { focusedKey = element.dataset.destination; highlight(); });

@@ -1,8 +1,8 @@
 # COMMIT Datascience Cell
 
-A simple static portal: a large CDSC logo, the team name underneath, and four external links. Animated circuits connect the logo to each destination and highlight them in turn.
+A simple static portal: an orange futuristic team heading above the full graphic, a large CDSC logo, and Products, Team, Contact links. The central orange star is the AI Learning Track link. Animated circuits highlight the destinations in turn.
 
-The light background, royal orange, ministry blue, RO Sans text, and condensed headings follow the public [Defensie.nl](https://www.defensie.nl/) design. Fonts are served locally. The original CDSC logo is preserved; the animated mark is an SVG reconstruction.
+The light background, royal orange, ministry blue, RO Sans text, and condensed link headings follow the public [Defensie.nl](https://www.defensie.nl/) design. The main heading uses the open-source Orbitron typeface. Fonts are served locally. The original CDSC logo is preserved; the animated mark is an SVG reconstruction.
 
 ## Preview
 
@@ -18,15 +18,15 @@ Edit public/site-config.js. For each destination, set its URL:
 
     products: { label: "Products", url: "https://example.org/products" }
 
-The four keys are products, contact, team, and learning. Empty or invalid URLs show Coming soon. Valid HTTPS, HTTP, mailto, and tel URLs open in the same tab. The configuration is public.
+The four keys are products, team, contact, and learning. Set learning.url to the external page that the central star should open. Empty or invalid URLs show Coming soon on the three chapters, and the star's accessible label and tooltip indicate Coming soon. Valid HTTPS, HTTP, mailto, and tel URLs open in the same tab. The configuration is public.
 
 Change teamName to update the large heading and page title. Update the fallback title and labels in public/index.html too for visitors without JavaScript. The former headline, introduction, and description settings are no longer used.
 
 ## Motion
 
-The logo's three circuit branches feed four destinations by forking the middle branch. Routes and link borders light up in sequence; hovering or focusing a link selects its route. On mobile, the circuits run beside the title to the stacked links.
+The logo's three circuit branches connect directly to Products, Team, and Contact in that order. Routes, link borders, and the central AI star light up in sequence; hovering or focusing a destination selects it. The heading spans the graphic above the logo and links. On mobile, the circuits run beside the logo to the stacked chapters.
 
-Pause motion freezes decorative animation. Reduced-motion preferences stop automatic movement and cycling while retaining static hover/focus feedback. Hidden tabs suspend animation. Without JavaScript, the logo, name, and inactive destination labels remain visible.
+The icon-only pause button freezes decorative animation and changes to a play icon for resuming. Its accessible name and tooltip describe the action. Reduced-motion preferences stop automatic movement and cycling while retaining static hover/focus feedback. Hidden tabs suspend animation. Without JavaScript, the logo, name, and inactive destination labels remain visible.
 
 ## GitHub Pages
 
@@ -56,3 +56,4 @@ Behavioral checks cover URL activation, four-way highlighting, hover and keyboar
 - Logo.png: supplied CDSC logo, unchanged.
 - public/assets/fonts/RO-SansWebText-Regular.woff2: https://www.defensie.nl/assets/fonts/v1/RO-SansWebText-Regular.woff2
 - public/assets/fonts/RobotoCondensed-Bold.woff2: https://www.defensie.nl/assets/fonts/v1/RobotoCondensed-Bold.woff2
+- public/assets/fonts/Orbitron.ttf: https://github.com/google/fonts/tree/main/ofl/orbitron (SIL Open Font License, included as OFL-Orbitron.txt).

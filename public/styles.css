@@ -12,6 +12,13 @@
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: "Orbitron";
+  src: url("./assets/fonts/Orbitron.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   color-scheme: light;
   --orange: #e17000;
@@ -33,20 +40,26 @@ a { color: inherit; }
 .skip-link:focus { top: 16px; }
 .page-width { width: min(1120px, calc(100% - 80px)); margin-inline: auto; }
 .site-header { min-height: 72px; padding: 20px 32px; display: flex; justify-content: flex-end; }
-.motion-toggle { display: inline-flex; align-items: center; gap: 8px; padding: 6px 0; border: 0; background: transparent; color: #535353; font-size: 15px; cursor: pointer; }
+.motion-toggle { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 1px solid #ccc; border-radius: 3px; background: white; color: #535353; cursor: pointer; }
 .motion-toggle:hover { color: var(--blue); text-decoration: underline; text-underline-offset: 4px; }
 .motion-toggle svg { fill: none; stroke: currentColor; stroke-width: 1.6; }
 .motion-toggle .play-icon { display: none; }
 .motion-toggle[aria-pressed="true"] .pause-icon { display: none; }
 .motion-toggle[aria-pressed="true"] .play-icon { display: block; }
 .motion-toggle:disabled { cursor: default; text-decoration: none; }
-main { flex: 1; display: flex; align-items: center; padding-block: 12px 72px; }
+main { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 45px; padding-block: 12px 72px; }
 .connection-stage { position: relative; isolation: isolate; display: grid; grid-template-columns: 55% 34%; gap: 11%; width: 100%; }
 .identity { position: relative; z-index: 1; text-align: center; min-width: 0; }
 .logo-mark { display: block; width: min(100%, 460px); height: auto; margin-inline: auto; overflow: visible; }
-h1 { display: flex; flex-direction: column; gap: 3px; margin: 12px 0 0; font-family: "Roboto Condensed", "Arial Narrow", sans-serif; font-weight: 700; line-height: 1.05; color: var(--blue); letter-spacing: -.02em; }
-h1 > span:first-child { font-size: clamp(54px, 6vw, 76px); }
-h1 > span:last-child { font-size: clamp(32px, 4.2vw, 51px); }
+.site-title { width: 100%; margin: 0; font-family: "Orbitron", "Arial Narrow", sans-serif; font-size: clamp(27px, 4.2vw, 58px); font-weight: 700; line-height: 1.25; color: var(--orange); letter-spacing: .025em; text-align: center; text-transform: uppercase; }
+.site-title > span { display: inline-block; }
+.learning-star { cursor: pointer; }
+.learning-star[aria-disabled] { cursor: help; }
+.star-shape { transition: fill 180ms, filter 180ms; }
+.star-label { font-family: "Orbitron", sans-serif; font-weight: 700; font-size: 48px; fill: var(--blue); pointer-events: none; }
+.star-hint { font-size: 28px; fill: var(--blue); opacity: 0; pointer-events: none; transition: opacity 180ms; }
+.learning-star:hover .star-shape, .learning-star:focus-visible .star-shape, .learning-star.is-highlighted .star-shape { fill: var(--orange); filter: drop-shadow(0 0 14px #e1700060); }
+.learning-star:hover .star-hint, .learning-star:focus-visible .star-hint { opacity: 1; }
 .destinations { display: flex; flex-direction: column; gap: 16px; padding-top: 51px; min-width: 0; position: relative; z-index: 2; align-self: start; }
 .destination { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 91px; padding: 18px 23px; border: 1px solid #ccc; background: white; text-decoration: none; color: var(--blue); transition: border-color 180ms, background-color 180ms; }
 .destination[aria-disabled] { cursor: default; }
@@ -74,19 +87,15 @@ html.motion-paused .track-pulse { animation-play-state: paused !important; }
   .connection-stage { grid-template-columns: 53% 36%; }
   .destination { min-height: 82px; padding: 16px; gap: 10px; }
   .destinations { padding-top: 25px; gap: 13px; }
-  h1 > span:first-child { font-size: 58px; }
-  h1 > span:last-child { font-size: 37px; }
 }
 @media (max-width: 680px) {
   .page-width { width: calc(100% - 40px); }
   .site-header { padding: 13px 20px; min-height: 55px; }
   .motion-toggle { font-size: 13px; }
-  main { align-items: flex-start; padding-block: 8px 38px; }
+  main { justify-content: flex-start; gap: 26px; padding-block: 8px 38px; }
   .connection-stage { grid-template-columns: minmax(0, 1fr); gap: 35px; }
   .logo-mark { width: min(100% - 18px, 320px); }
-  h1 { margin-top: 9px; padding-inline: 18px; }
-  h1 > span:first-child { font-size: 55px; }
-  h1 > span:last-child { font-size: clamp(29px, 7.5vw, 38px); }
+  .site-title { font-size: clamp(23px, 6vw, 35px); line-height: 1.4; }
   .destinations { width: calc(100% - 30px); max-width: 450px; padding: 0; gap: 12px; margin-inline: auto; }
   .destination { min-height: 75px; padding: 14px 20px; }
   .destination strong { font-size: 25px; }

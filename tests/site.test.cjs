@@ -22,6 +22,7 @@ class Element {
   }
   setAttribute(name, value) { this.attributes[name] = String(value); }
   getAttribute(name) { return this.attributes[name]; }
+  removeAttribute(name) { delete this.attributes[name]; }
   querySelector(selector) { return this.querySelectorAll(selector)[0]; }
   querySelectorAll(selector) {
     return this.children.flatMap(child => [
@@ -63,8 +64,8 @@ function setup({ reduced = false, mobile = false, mutateConfig } = {}) {
   const overlay = one("#connection-tracks");
   stage.rect = { left: 40, top: 80, width: mobile ? 350 : 1120, height: mobile ? 870 : 600 };
   logo.rect = { left: mobile ? 55 : 100, top: 80, width: mobile ? 320 : 460, height: mobile ? 301.176 : 432.941 };
-  const keys = ["products", "contact", "team", "learning"];
-  const placeholders = many("[data-destination]", keys.map((key, index) => {
+  const keys = ["products", "team", "contact"];
+  const placeholders = many(".destinations [data-destination]", keys.map((key, index) => {
     const node = new Element();
     node.dataset.destination = key;
     node.className = "destination";
@@ -88,9 +89,13 @@ function setup({ reduced = false, mobile = false, mutateConfig } = {}) {
     return route;
   }));
   const toggle = one("#motion-toggle", new Element("button"));
-  const label = new Element();
-  label.selector = "[data-motion-label]";
-  toggle.append(label);
+  const learningLink = one("#learning-link", new Element("a"));
+  learningLink.dataset.destination = "learning";
+  learningLink.setAttribute("aria-disabled", "true");
+  const hint = new Element("text");
+  hint.selector = ".star-hint";
+  learningLink.append(hint);
+  one("#learning-link-title");
   const preference = { matches: reduced, addEventListener(name, fn) { this.listener = fn; } };
   const callbacks = new Map();
   let counter = 0;
@@ -107,7 +112,7 @@ function setup({ reduced = false, mobile = false, mutateConfig } = {}) {
   vm.runInContext(appSource, context);
   const destinations = placeholders.map(node => node.replacement || node);
   return {
-    window, document, nodes, stage, logo, overlay, placeholders, destinations, paths, terminals, routes, toggle, preference, callbacks,
+    window, document, nodes, stage, logo, overlay, placeholders, destinations, learningLink, highlightTargets: [...destinations, learningLink], paths, terminals, routes, toggle, preference, callbacks,
     step(time) {
       const [id, callback] = callbacks.entries().next().value;
       callbacks.delete(id);
@@ -116,15 +121,17 @@ function setup({ reduced = false, mobile = false, mutateConfig } = {}) {
   };
 }
 
-test("four unconfigured destinations stay inactive and keep their short labels", () => {
+test("three unconfigured chapters and the learning star retain missing-link states", () => {
   const page = setup();
-  assert.equal(page.destinations.length, 4);
+  assert.equal(page.destinations.length, 3);
   page.placeholders.forEach(node => {
     assert.equal(node.replacement, undefined);
     assert.equal(node.querySelector("[data-status]").textContent, "Coming soon");
   });
   assert.equal(page.document.title, "COMMIT Datascience Cell");
   assert.equal(page.nodes.get("[data-name-rest]")[0].textContent, "Datascience Cell");
+  assert.equal(page.learningLink.getAttribute("href"), undefined);
+  assert.equal(page.learningLink.getAttribute("aria-label"), "AI Learning Track — Coming soon");
 });
 
 test("configured links open in the same tab and hide placeholder status", () => {
@@ -134,20 +141,32 @@ test("configured links open in the same tab and hide placeholder status", () => 
     config.destinations.team.label = "People";
   } });
   assert.equal(page.destinations[0].href, "https://example.org/products");
-  assert.equal(page.destinations[1].href, "mailto:team@example.org");
-  for (const node of page.destinations.slice(0, 2)) {
+  assert.equal(page.destinations[2].href, "mailto:team@example.org");
+  for (const node of [page.destinations[0], page.destinations[2]]) {
     assert.equal(node.tagName, "a");
     assert.equal(node.target, undefined);
     assert.equal(node.getAttribute("aria-disabled"), undefined);
     assert.equal(node.querySelector("[data-status]").hidden, true);
   }
-  assert.equal(page.destinations[2].querySelector("[data-label]").textContent, "People");
+  assert.equal(page.destinations[1].querySelector("[data-label]").textContent, "People");
+});
+
+test("the central SVG star opens the configured learning URL as an accessible same-tab link", () => {
+  const page = setup({ mutateConfig(config) { config.destinations.learning.url = "https://example.org/learn"; } });
+  assert.equal(page.learningLink.getAttribute("href"), "https://example.org/learn");
+  assert.equal(page.learningLink.getAttribute("aria-disabled"), undefined);
+  assert.equal(page.learningLink.getAttribute("aria-label"), "AI Learning Track");
+  assert.equal(page.learningLink.getAttribute("target"), undefined);
+  page.learningLink.listeners.focus();
+  assert.ok(page.learningLink.classes.has("is-highlighted"));
+  assert.equal(page.routes.filter(route => route.classes.has("is-highlighted")).length, 0);
 });
 
 test("unsafe and malformed URLs remain inactive", () => {
   for (const url of ["javascript:alert(1)", "data:text/html,test", "/relative", "not a URL", ""]) {
-    const page = setup({ mutateConfig(config) { config.destinations.products.url = url; } });
+    const page = setup({ mutateConfig(config) { config.destinations.products.url = url; config.destinations.learning.url = url; } });
     assert.equal(page.placeholders[0].replacement, undefined, url);
+    assert.equal(page.learningLink.getAttribute("href"), undefined, url);
   }
 });
 
@@ -156,10 +175,12 @@ test("all four destinations are highlighted in turn", () => {
   const seen = new Set();
   for (let index = 0; index < 300; index++) {
     page.step(index * 32);
-    const highlighted = page.destinations.filter(node => node.classes.has("is-highlighted"));
+    const highlighted = page.highlightTargets.filter(node => node.classes.has("is-highlighted"));
     assert.equal(highlighted.length, 1);
     seen.add(highlighted[0].dataset.destination);
-    assert.equal(page.routes.find(route => route.classes.has("is-highlighted")).dataset.route, highlighted[0].dataset.destination);
+    const route = page.routes.find(route => route.classes.has("is-highlighted"));
+    if (highlighted[0] === page.learningLink) assert.equal(route, undefined);
+    else assert.equal(route.dataset.route, highlighted[0].dataset.destination);
   }
   assert.equal(seen.size, 4);
 });
@@ -169,15 +190,15 @@ test("hover and keyboard focus select the corresponding circuit, including with 
   assert.equal(page.destinations.filter(node => node.classes.has("is-highlighted")).length, 0);
   page.destinations[0].listeners.pointerenter();
   assert.ok(page.routes[0].classes.has("is-highlighted"));
-  page.destinations[2].listeners.focus();
-  assert.ok(page.routes[2].classes.has("is-highlighted"));
-  page.destinations[2].listeners.blur();
+  page.destinations[1].listeners.focus();
+  assert.ok(page.routes[1].classes.has("is-highlighted"));
+  page.destinations[1].listeners.blur();
   assert.ok(page.routes[0].classes.has("is-highlighted"));
   page.destinations[0].listeners.pointerleave();
   assert.equal(page.routes.filter(route => route.classes.has("is-highlighted")).length, 0);
 });
 
-test("branches remain attached and all four connector endpoints align with links", () => {
+test("branches remain attached and all three connector endpoints align with links", () => {
   const page = setup();
   for (let frame = 0; frame < 600; frame++) {
     page.step(frame * 32);
@@ -199,8 +220,8 @@ test("branches remain attached and all four connector endpoints align with links
       assert.ok(shape.endsWith(" " + end.getAttribute("cy") + "H" + end.getAttribute("cx")));
     });
   }
-  // Both middle links originate at the same fork.
-  assert.equal(page.routes[1].querySelector("path").getAttribute("d").split("H")[0], page.routes[2].querySelector("path").getAttribute("d").split("H")[0]);
+  const sources = page.routes.map(route => route.querySelector("path").getAttribute("d").split("H")[0]);
+  assert.equal(new Set(sources).size, 3);
 });
 
 test("mobile routes run beside the title and connect to link right edges; resize recalculates endpoints", () => {
@@ -225,6 +246,9 @@ test("pause, hidden tabs, and reduced motion stop continuous motion", () => {
   page.toggle.listeners.click();
   assert.equal(page.callbacks.size, 0);
   assert.equal(page.toggle.getAttribute("aria-pressed"), "true");
+  assert.equal(page.toggle.getAttribute("aria-label"), "Resume motion");
+  assert.equal(page.toggle.title, "Resume motion");
+  assert.equal(page.toggle.children.length, 0);
   assert.ok(page.document.documentElement.classes.has("motion-paused"));
   page.toggle.listeners.click();
   page.step(900000);
@@ -248,7 +272,12 @@ test("static fallback has the logo, title, four destinations, local fonts, and n
   assert.match(html, /data-name-first>COMMIT/);
   assert.match(html, /data-name-rest>Datascience Cell/);
   assert.equal((html.match(/data-destination="/g) || []).length, 4);
-  assert.equal((html.match(/data-route="/g) || []).length, 4);
+  assert.equal((html.match(/data-route="/g) || []).length, 3);
+  assert.ok(html.indexOf('<h1 class="site-title"') < html.indexOf('id="connection-stage"'));
+  const nav = html.slice(html.indexOf('<nav class="destinations"'), html.indexOf('</nav>'));
+  assert.deepEqual(Array.from(nav.matchAll(/data-destination="([^"]+)"/g), match => match[1]), ["products", "team", "contact"]);
+  assert.doesNotMatch(html, /data-motion-label/);
+  assert.match(html, /class="learning-star"[^>]+role="link"[^>]+tabindex="0"/);
   assert.doesNotMatch(html, /hero-introduction|<p>|Build\.|Explore the cell|star-field/);
   for (const match of html.matchAll(/(?:src|href)="(\.\/[^"#]+)"/g)) {
     assert.ok(fs.existsSync(path.resolve(root, "public", match[1])), match[1]);
@@ -256,5 +285,6 @@ test("static fallback has the logo, title, four destinations, local fonts, and n
   for (const font of ["RO-SansWebText-Regular.woff2", "RobotoCondensed-Bold.woff2"]) {
     assert.equal(fs.readFileSync(path.join(root, "public/assets/fonts", font)).subarray(0, 4).toString(), "wOF2");
   }
+  assert.deepEqual([...fs.readFileSync(path.join(root, "public/assets/fonts/Orbitron.ttf")).subarray(0, 4)], [0, 1, 0, 0]);
   assert.deepEqual(fs.readFileSync(path.join(root, "Logo.png")), fs.readFileSync(path.join(root, "public/assets/Logo.png")));
 });

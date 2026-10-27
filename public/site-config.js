@@ -3,8 +3,8 @@ window.CDSC_CONFIG = {
   teamName: "COMMIT Datascience Cell",
   destinations: {
     products: { label: "Products", url: "" },
-    contact: { label: "Contact", url: "" },
     team: { label: "Team", url: "" },
+    contact: { label: "Contact", url: "" },
     learning: { label: "AI Learning Track", url: "" },
   },
 };

@@ -4,14 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#154273">
-    <meta name="description" content="COMMIT Datascience Cell. Products, Contact, Team and AI Learning Track.">
+    <meta name="description" content="COMMIT Datascience Cell. Products, Team, Contact and AI Learning Track.">
     <meta property="og:title" content="COMMIT Datascience Cell">
-    <meta property="og:description" content="Products, Contact, Team and AI Learning Track.">
+    <meta property="og:description" content="Products, Team, Contact and AI Learning Track.">
     <meta property="og:type" content="website">
     <title>COMMIT Datascience Cell</title>
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
     <link rel="preload" href="./assets/fonts/RO-SansWebText-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="./assets/fonts/RobotoCondensed-Bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="./assets/fonts/Orbitron.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="./styles.css">
     <script src="./site-config.js" defer></script>
     <script src="./app.js" defer></script>
@@ -19,27 +20,31 @@
   <body>
     <a class="skip-link" href="#destinations">Skip to links</a>
     <header class="site-header">
-      <button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false" hidden>
+      <button class="motion-toggle" id="motion-toggle" type="button" aria-label="Pause motion" title="Pause motion" aria-pressed="false" hidden>
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path class="pause-icon" d="M5 3v10M11 3v10"/><path class="play-icon" d="m5 3 7 5-7 5Z"/></svg>
-        <span data-motion-label>Pause motion</span>
       </button>
     </header>
 
     <main class="page-width" aria-labelledby="team-name">
+      <h1 class="site-title" id="team-name"><span data-name-first>COMMIT</span> <span data-name-rest>Datascience Cell</span></h1>
       <div class="connection-stage" id="connection-stage">
         <svg class="connection-tracks" id="connection-tracks" aria-hidden="true" focusable="false">
           <g data-route="products"><path class="track-base"/><path class="track-pulse"/><circle class="track-end" r="4"/></g>
-          <g data-route="contact"><path class="track-base"/><path class="track-pulse"/><circle class="track-end" r="4"/></g>
           <g data-route="team"><path class="track-base"/><path class="track-pulse"/><circle class="track-end" r="4"/></g>
-          <g data-route="learning"><path class="track-base"/><path class="track-pulse"/><circle class="track-end" r="4"/></g>
+          <g data-route="contact"><path class="track-base"/><path class="track-pulse"/><circle class="track-end" r="4"/></g>
         </svg>
 
         <section class="identity" aria-labelledby="team-name">
-          <svg class="logo-mark" id="logo-mark" viewBox="140 140 1020 960" role="img" aria-labelledby="logo-title logo-description">
+          <svg class="logo-mark" id="logo-mark" viewBox="140 140 1020 960" role="group" aria-labelledby="logo-title logo-description">
             <title id="logo-title">COMMIT Datascience Cell logo</title>
-            <desc id="logo-description">An orange gear and spark with three circuit branches connecting to four destinations.</desc>
+            <desc id="logo-description">An orange gear with three circuit branches. Select the central star for the AI Learning Track.</desc>
             <path fill="#ff7106" d="M562 178H687L727 277Q763 287 797 305L895 264L928 343L803 443A253 253 0 1 0 803 802L928 902L895 981L797 940Q763 959 727 968L687 1067H562L522 968Q487 959 452 940L354 981L266 893L307 795Q289 762 279 727L180 685V560L279 520Q289 485 307 450L266 352L354 264L452 305Q486 287 522 277Z"/>
-            <path fill="#ff7106" d="M609 463C626 563 636 600 759 625C650 644 628 669 609 789C590 673 565 651 446 626C559 601 589 574 609 463Z"/>
+            <a class="learning-star" id="learning-link" data-destination="learning" role="link" tabindex="0" aria-label="AI Learning Track — Coming soon" aria-disabled="true">
+              <title id="learning-link-title">AI Learning Track — Coming soon</title>
+              <path class="star-shape" fill="#ff7106" d="M609 463C626 563 636 600 759 625C650 644 628 669 609 789C590 673 565 651 446 626C559 601 589 574 609 463Z"/>
+              <text class="star-label" x="609" y="642" text-anchor="middle" aria-hidden="true">AI</text>
+              <text class="star-hint" x="609" y="839" text-anchor="middle" aria-hidden="true">AI Learning Track</text>
+            </a>
             <g class="logo-branches" fill="none" stroke="#424547" stroke-width="35" stroke-linejoin="round">
               <path data-branch="0" d="M682 555H865L955 468H1063"/>
               <path data-branch="1" d="M773 626H1063"/>
@@ -51,14 +56,12 @@
               <circle data-terminal="2" cx="1063" cy="785" r="43"/>
             </g>
           </svg>
-          <h1 id="team-name"><span data-name-first>COMMIT</span><span data-name-rest>Datascience Cell</span></h1>
         </section>
 
         <nav class="destinations" id="destinations" aria-label="Destinations" tabindex="-1">
           <span class="destination" data-destination="products" aria-disabled="true"><span class="destination-copy"><strong data-label>Products</strong><small data-status>Coming soon</small></span><span class="destination-arrow" aria-hidden="true">↗</span></span>
-          <span class="destination" data-destination="contact" aria-disabled="true"><span class="destination-copy"><strong data-label>Contact</strong><small data-status>Coming soon</small></span><span class="destination-arrow" aria-hidden="true">↗</span></span>
           <span class="destination" data-destination="team" aria-disabled="true"><span class="destination-copy"><strong data-label>Team</strong><small data-status>Coming soon</small></span><span class="destination-arrow" aria-hidden="true">↗</span></span>
-          <span class="destination" data-destination="learning" aria-disabled="true"><span class="destination-copy"><strong data-label>AI Learning Track</strong><small data-status>Coming soon</small></span><span class="destination-arrow" aria-hidden="true">↗</span></span>
+          <span class="destination" data-destination="contact" aria-disabled="true"><span class="destination-copy"><strong data-label>Contact</strong><small data-status>Coming soon</small></span><span class="destination-arrow" aria-hidden="true">↗</span></span>
         </nav>
       </div>
     </main>
