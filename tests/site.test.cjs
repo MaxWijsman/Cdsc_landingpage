@@ -218,6 +218,13 @@ test("branches remain attached and all three connector endpoints align with link
       const shape = route.querySelector("path").getAttribute("d");
       assert.ok(!shape.includes("NaN"));
       assert.ok(shape.endsWith(" " + end.getAttribute("cy") + "H" + end.getAttribute("cx")));
+      const pulse = route.querySelectorAll("path")[1].getAttribute("d");
+      const anchor = [[682, 555], [773, 626], [682, 695]][index];
+      const scale = page.logo.rect.width / 1020;
+      const startX = page.logo.rect.left - page.stage.rect.left + (anchor[0] - 140) * scale;
+      const startY = page.logo.rect.top - page.stage.rect.top + (anchor[1] - 140) * scale;
+      assert.ok(pulse.startsWith("M" + startX + " " + startY + "L"));
+      assert.ok(pulse.endsWith(" " + end.getAttribute("cy") + "H" + end.getAttribute("cx")));
     });
   }
   const sources = page.routes.map(route => route.querySelector("path").getAttribute("d").split("H")[0]);
@@ -277,6 +284,7 @@ test("static fallback has the logo, title, four destinations, local fonts, and n
   const nav = html.slice(html.indexOf('<nav class="destinations"'), html.indexOf('</nav>'));
   assert.deepEqual(Array.from(nav.matchAll(/data-destination="([^"]+)"/g), match => match[1]), ["products", "team", "contact"]);
   assert.doesNotMatch(html, /data-motion-label/);
+  assert.doesNotMatch(html, /star-label|>AI<\/text>/);
   assert.match(html, /class="learning-star"[^>]+role="link"[^>]+tabindex="0"/);
   assert.doesNotMatch(html, /hero-introduction|<p>|Build\.|Explore the cell|star-field/);
   for (const match of html.matchAll(/(?:src|href)="(\.\/[^"#]+)"/g)) {

@@ -70,7 +70,11 @@
   let frame = null;
   let lastTime = null;
   let elapsed = 0;
-  let branchEnds = [{ x: 1063, y: 468 }, { x: 1063, y: 626 }, { x: 1063, y: 785 }];
+  let branchEnds = [
+    { x: 1063, y: 468, points: [[682, 555], [865, 555], [955, 468], [1063, 468]] },
+    { x: 1063, y: 626, points: [[773, 626], [900, 626], [985, 626], [1063, 626]] },
+    { x: 1063, y: 785, points: [[682, 695], [865, 695], [955, 785], [1063, 785]] },
+  ];
 
   const highlight = () => {
     const selected = focusedKey ?? hoveredKey ?? highlightTargets[automaticIndex]?.dataset.destination;
@@ -88,10 +92,17 @@
       const target = targets[index];
       // On phones, run beside the logo to the right edge of each link.
       const rail = mobile ? width - 3 - index * 3 : x + (target.x - x) * (0.44 + index * 0.09);
-      const shape = mobile
-        ? "M" + x + " " + y + "H" + rail + "V" + target.y + "H" + target.x
-        : "M" + x + " " + y + "H" + rail + "L" + (target.x - 22) + " " + target.y + "H" + target.x;
-      route.querySelectorAll("path").forEach((path) => path.setAttribute("d", shape));
+      const connection = mobile
+        ? "H" + rail + "V" + target.y + "H" + target.x
+        : "H" + rail + "L" + (target.x - 22) + " " + target.y + "H" + target.x;
+      const [basePath, pulsePath] = route.querySelectorAll("path");
+      // Keep the neutral connector outside the terminal, with the brighter
+      // pulse travelling continuously from inside the logo to the chapter.
+      basePath.setAttribute("d", "M" + (x + 43 * scale) + " " + y + connection);
+      const pulse = endpoint.points.map(([pointX, pointY], pointIndex) =>
+        (pointIndex === 0 ? "M" : "L") + (logoLeft + (pointX - 140) * scale) + " " + (logoTop + (pointY - 140) * scale)
+      ).join("");
+      pulsePath.setAttribute("d", pulse + connection);
       const end = route.querySelector("circle");
       end.setAttribute("cx", target.x);
       end.setAttribute("cy", target.y);
@@ -131,7 +142,10 @@
       path.setAttribute("d", shape);
       terminals[index].setAttribute("cx", x);
       terminals[index].setAttribute("cy", y);
-      return { x, y };
+      const points = index === 1
+        ? [[773, 626], [900 + extension * 0.3, 626], [985 + extension * 0.6, y], [x, y]]
+        : [[682, index === 0 ? 555 : 695], [865 + extension * 0.3, index === 0 ? 555 : 695], [955 + extension * 0.6, y], [x, y]];
+      return { x, y, points };
     });
     drawConnections();
   };
