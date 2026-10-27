@@ -1,68 +1,58 @@
 # COMMIT Datascience Cell
 
-A static landing page for the COMMIT Datascience Cell (CDSC), with an animated SVG logo and four configurable external destinations. Plain HTML, CSS, and JavaScript; no installation, build step, or backend required.
+A simple static portal: a large CDSC logo, the team name underneath, and four external links. Animated circuits connect the logo to each destination and highlight them in turn.
 
-## Preview locally
+The light background, royal orange, ministry blue, RO Sans text, and condensed headings follow the public [Defensie.nl](https://www.defensie.nl/) design. Fonts are served locally. The original CDSC logo is preserved; the animated mark is an SVG reconstruction.
 
-From this folder, run:
+## Preview
 
-```powershell
-python -m http.server 8080 --bind 127.0.0.1 --directory public
-```
+Run from this folder:
 
-Open <http://localhost:8080>. Stop the server with Ctrl+C. You can also open `public/index.html` directly to view the page.
+    python -m http.server 8080 --bind 127.0.0.1 --directory public
 
-## Update content and links
+Open <http://localhost:8080>. Stop with Ctrl+C. Opening public/index.html directly also works.
 
-Edit `public/site-config.js`. It contains the team name, short name, three headline lines, introduction, and four destinations. For example:
+## Set the links
 
-```js
-products: {
-  label: "Products",
-  description: "Explore our products.",
-  url: "https://example.org/products",
-},
-```
+Edit public/site-config.js. For each destination, set its URL:
 
-Empty or invalid URLs show non-clickable **Coming soon** cards and navigation labels. Valid `https:`, `http:`, `mailto:`, and `tel:` destinations turn both the card and corresponding navigation label into links. Links open in the current tab. For email, set Contact to an address such as `mailto:your-team@example.org`. Replace examples with your actual destinations.
+    products: { label: "Products", url: "https://example.org/products" }
 
-The configuration is public; put only public content in it. Update the fallback copy in `public/index.html` too if you need custom content to appear without JavaScript or in link previews and search engines that do not execute JavaScript. The page title and description are also updated from configuration in the browser. The footer year is in the HTML.
+The four keys are products, contact, team, and learning. Empty or invalid URLs show Coming soon. Valid HTTPS, HTTP, mailto, and tel URLs open in the same tab. The configuration is public.
 
-## Publish on GitHub Pages
+Change teamName to update the large heading and page title. Update the fallback title and labels in public/index.html too for visitors without JavaScript. The former headline, introduction, and description settings are no longer used.
 
-1. Create a GitHub repository and push this folder to its default branch.
-2. The workflow listens to `main`. If your default branch has another name, update `on.push.branches` in `.github/workflows/pages.yml` to match.
-3. In **Settings → Pages → Build and deployment**, select **GitHub Actions** as the source.
-4. Push an update or run **Deploy GitHub Pages** from the Actions tab on your default branch.
-5. Find the published URL in the deployment output or repository Pages settings.
+## Motion
 
-The workflow publishes only `public/`. See [GitHub's Pages workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+The logo's three circuit branches feed four destinations by forking the middle branch. Routes and link borders light up in sequence; hovering or focusing a link selects its route. On mobile, the circuits run beside the title to the stacked links.
 
-## Publish on GitLab Pages
+Pause motion freezes decorative animation. Reduced-motion preferences stop automatic movement and cycling while retaining static hover/focus feedback. Hidden tabs suspend animation. Without JavaScript, the logo, name, and inactive destination labels remain visible.
 
-1. Create a GitLab project and push this folder, including `.gitlab-ci.yml`, to its default branch.
-2. Ensure a CI runner and Pages are enabled for the project. The `deploy-pages` job publishes `public/` on default-branch pushes.
-3. Find the published URL under **Deploy → Pages** after the pipeline succeeds.
+## GitHub Pages
 
-The configuration uses the current `pages.publish` syntax supported by GitLab.com. Older self-managed GitLab installations may need their version's Pages syntax. See [GitLab Pages documentation](https://docs.gitlab.com/user/project/pages/).
+1. Push the project to the repository's main branch.
+2. In Settings → Pages → Build and deployment, select GitHub Actions.
+3. Run Deploy GitHub Pages in Actions, or push another change.
+4. Open the URL reported by the successful deployment.
 
-## Assets and motion
+The workflow publishes public/. If the default branch differs from main, update the workflow trigger. GitHub Pages must be enabled before the deployment can succeed. See [GitHub Pages workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
-- `Logo.png` is the untouched source image; `public/assets/Logo.png` is an identical deployable copy used in the header.
-- The hero is an SVG reconstruction. Its gear and spark stay still while its three connected branches extend and bend independently. The SVG and branch coordinates live in `public/index.html` and `public/app.js`.
-- **Pause motion** freezes all continuous decoration; **Resume motion** continues from the same position. This choice lasts for the current page visit.
-- A device's reduced-motion preference takes priority and displays the complete stationary logo. Background tabs suspend animation.
-- Without JavaScript, content and the logo remain visible, and destination placeholders remain inactive.
-- All assets are local and use relative paths. The same `public/` directory works at a domain root, under a repository subpath, or on a custom domain.
+## GitLab Pages
+
+Push the project, including .gitlab-ci.yml, to the GitLab default branch. With CI runners and Pages enabled, the pipeline publishes public/. Find the URL under Deploy → Pages. The configuration uses current GitLab.com pages.publish syntax; older self-managed versions may require their version's syntax. See [GitLab Pages](https://docs.gitlab.com/user/project/pages/).
+
+Both hosts use the same files and relative URLs, including when hosted under a repository subpath. There is no backend, build step, or package installation.
 
 ## Checks
 
-With Node.js installed, run:
+    node --check public/app.js
+    node --check public/site-config.js
+    node --test tests/site.test.cjs
 
-```powershell
-node --check public/app.js
-node --check public/site-config.js
-node --test tests/site.test.cjs
-```
+Behavioral checks cover URL activation, four-way highlighting, hover and keyboard focus, connector alignment on desktop and mobile, resizing, pause/resume, hidden tabs, reduced motion, and static assets. Visual browser review is also recommended after layout changes.
 
-The dependency-free behavioral checks cover destination activation, missing and unsafe URLs, configurable text, circuit attachment and terminal alignment, pause/resume, hidden tabs, and reduced motion. Also inspect the page at mobile, tablet, and desktop widths after changing its layout.
+## Asset sources
+
+- Logo.png: supplied CDSC logo, unchanged.
+- public/assets/fonts/RO-SansWebText-Regular.woff2: https://www.defensie.nl/assets/fonts/v1/RO-SansWebText-Regular.woff2
+- public/assets/fonts/RobotoCondensed-Bold.woff2: https://www.defensie.nl/assets/fonts/v1/RobotoCondensed-Bold.woff2

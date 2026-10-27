@@ -1,40 +1,18 @@
-/* Static-page configuration and decorative motion. No dependencies or network calls. */
+/* Static links and decorative circuits. No dependencies or network requests. */
 (() => {
   "use strict";
 
   const config = window.CDSC_CONFIG || {};
-  const setText = (selector, text) => {
-    if (typeof text !== "string" || !text.trim()) return;
-    document.querySelectorAll(selector).forEach((element) => {
-      element.textContent = text;
-    });
-  };
-
   const teamName = typeof config.teamName === "string" && config.teamName.trim()
     ? config.teamName.trim() : "COMMIT Datascience Cell";
-  setText("[data-team-name], #logo-title", teamName);
-  setText("[data-short-name]", config.shortName);
-  setText("[data-introduction]", config.introduction);
-  document.querySelector("[data-brand-link]").setAttribute("aria-label", `${teamName} home`);
-  const brandWords = teamName.split(/\s+/);
-  setText(".brand-name strong", brandWords.shift());
-  setText(".brand-name > span", brandWords.join(" ") || teamName);
-  document.querySelector(".brand-image img").alt = `${teamName} orange gear and circuit logo`;
+  const words = teamName.split(/\s+/);
+  document.querySelector("[data-name-first]").textContent = words.shift();
+  document.querySelector("[data-name-rest]").textContent = words.join(" ");
+  document.getElementById("logo-title").textContent = teamName + " logo";
+  document.title = teamName;
+  document.querySelector('meta[property="og:title"]').content = teamName;
 
-  if (Array.isArray(config.headline) && config.headline.length === 3) {
-    document.querySelectorAll("h1 > span").forEach((line, index) => {
-      if (typeof config.headline[index] === "string") line.textContent = config.headline[index];
-    });
-  }
-  const headline = Array.from(document.querySelectorAll("h1 > span"), (line) => line.textContent).join(" ");
-  document.title = `${teamName} — ${headline}`;
-  document.querySelector('meta[property="og:title"]').content = document.title;
-  const intro = document.querySelector("[data-introduction]").textContent;
-  document.querySelector('meta[name="description"]').content = intro;
-  document.querySelector('meta[property="og:description"]').content = intro;
-
-  // Only explicit web, email, and telephone destinations become links.
-  const destinationUrl = (value) => {
+  const safeUrl = (value) => {
     if (typeof value !== "string" || !value.trim()) return null;
     try {
       const url = new URL(value.trim());
@@ -44,79 +22,114 @@
     }
   };
 
-  document.querySelectorAll("[data-destination]").forEach((card) => {
-    const key = card.dataset.destination;
+  const destinations = Array.from(document.querySelectorAll("[data-destination]"), (placeholder) => {
+    const key = placeholder.dataset.destination;
     const destination = config.destinations?.[key] || {};
-    const heading = card.querySelector("[data-destination-label]");
-    if (typeof destination.label === "string" && destination.label.trim()) heading.textContent = destination.label;
-    if (typeof destination.description === "string") card.querySelector("[data-destination-description]").textContent = destination.description;
-    const navItem = document.querySelector(`[data-nav="${key}"]`);
-    navItem.textContent = heading.textContent;
-    const url = destinationUrl(destination.url);
-
-    if (!url) {
-      navItem.title = `${heading.textContent} — Coming soon`;
-      return;
-    }
-
+    const label = placeholder.querySelector("[data-label]");
+    if (typeof destination.label === "string" && destination.label.trim()) label.textContent = destination.label;
+    const url = safeUrl(destination.url);
+    if (!url) return placeholder;
     const link = document.createElement("a");
-    link.className = card.className;
+    link.className = placeholder.className;
     link.dataset.destination = key;
     link.href = url;
-    while (card.firstChild) link.append(card.firstChild);
-    link.querySelector("[data-destination-status]").textContent = "Explore destination ↗";
-    card.replaceWith(link);
-
-    const navLink = document.createElement("a");
-    navLink.dataset.nav = key;
-    navLink.href = url;
-    navLink.textContent = heading.textContent;
-    navItem.replaceWith(navLink);
+    while (placeholder.firstChild) link.append(placeholder.firstChild);
+    link.querySelector("[data-status]").hidden = true;
+    placeholder.replaceWith(link);
+    return link;
   });
 
-  const toggle = document.getElementById("motion-toggle");
-  const motionLabel = toggle.querySelector("[data-motion-label]");
-  const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const stage = document.getElementById("connection-stage");
+  const logo = document.getElementById("logo-mark");
+  const overlay = document.getElementById("connection-tracks");
   const paths = Array.from(document.querySelectorAll("[data-branch]"));
   const terminals = Array.from(document.querySelectorAll("[data-terminal]"));
-  const centres = Array.from(document.querySelectorAll("[data-terminal-centre]"));
+  const routes = Array.from(document.querySelectorAll("[data-route]"));
+  // The middle circuit forks so the logo's three branches serve four links.
+  const sourceFor = [0, 1, 1, 2];
+  const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const toggle = document.getElementById("motion-toggle");
+  const motionLabel = toggle.querySelector("[data-motion-label]");
+  let metrics;
+  let hoveredKey = null;
+  let focusedKey = null;
+  let automaticIndex = preference.matches ? -1 : 0;
   let userPaused = false;
   let frame = null;
   let lastTime = null;
   let elapsed = 0;
+  let branchEnds = [{ x: 1063, y: 468 }, { x: 1063, y: 626 }, { x: 1063, y: 785 }];
+
+  const highlight = () => {
+    const selected = focusedKey ?? hoveredKey ?? destinations[automaticIndex]?.dataset.destination;
+    destinations.forEach((element) => element.classList.toggle("is-highlighted", element.dataset.destination === selected));
+    routes.forEach((route) => route.classList.toggle("is-highlighted", route.dataset.route === selected));
+  };
+
+  const drawConnections = () => {
+    if (!metrics) return;
+    const { width, logoLeft, logoTop, scale, targets, mobile } = metrics;
+    routes.forEach((route, index) => {
+      const endpoint = branchEnds[sourceFor[index]];
+      const x = logoLeft + (endpoint.x - 140) * scale;
+      const y = logoTop + (endpoint.y - 140) * scale;
+      const target = targets[index];
+      // On phones, run beside the title to the right edge of each link.
+      const rail = mobile ? width - 3 - index * 3 : x + (target.x - x) * (0.44 + index * 0.09);
+      const shape = mobile
+        ? "M" + x + " " + y + "H" + rail + "V" + target.y + "H" + target.x
+        : "M" + x + " " + y + "H" + rail + "L" + (target.x - 22) + " " + target.y + "H" + target.x;
+      route.querySelectorAll("path").forEach((path) => path.setAttribute("d", shape));
+      const end = route.querySelector("circle");
+      end.setAttribute("cx", target.x);
+      end.setAttribute("cy", target.y);
+    });
+  };
+
+  const measure = () => {
+    const rect = stage.getBoundingClientRect();
+    const logoRect = logo.getBoundingClientRect();
+    if (!rect.width || !logoRect.width) return;
+    const mobile = window.matchMedia("(max-width: 680px)").matches;
+    metrics = {
+      width: rect.width,
+      logoLeft: logoRect.left - rect.left,
+      logoTop: logoRect.top - rect.top,
+      scale: logoRect.width / 1020,
+      mobile,
+      targets: destinations.map((element) => {
+        const target = element.getBoundingClientRect();
+        return { x: (mobile ? target.right : target.left) - rect.left, y: target.top - rect.top + target.height / 2 };
+      }),
+    };
+    overlay.setAttribute("viewBox", "0 0 " + rect.width + " " + rect.height);
+    drawConnections();
+  };
 
   const drawBranches = (seconds, still = false) => {
-    paths.forEach((path, index) => {
-      const phase = seconds * 0.47 + index * 1.6;
-      const extension = still ? 0 : (Math.sin(phase) + 1) * 61;
-      const bend = still ? 0 : Math.sin(phase * 0.83) * 26;
-      const endX = 1063 + extension;
-      let endY;
-      let shape;
-
-      if (index === 1) {
-        endY = 626 + bend * 0.45;
-        shape = `M773 626H${900 + extension * 0.35}L${985 + extension * 0.7} ${endY}H${endX}`;
-      } else {
-        const direction = index === 0 ? -1 : 1;
-        const anchorY = index === 0 ? 555 : 695;
-        endY = (index === 0 ? 468 : 785) + direction * extension * 0.2 + bend;
-        const elbowX = 865 + extension * 0.3;
-        const outerX = 955 + extension * 0.65;
-        shape = `M682 ${anchorY}H${elbowX}L${outerX} ${endY}H${endX}`;
-      }
+    branchEnds = paths.map((path, index) => {
+      const phase = seconds * 0.7 + index * 1.6;
+      const extension = still ? 0 : (Math.sin(phase) + 1) * 12;
+      const bend = still ? 0 : Math.sin(phase * 0.8) * 9;
+      const x = 1063 + extension;
+      const y = [468, 626, 785][index] + bend;
+      const shape = index === 1
+        ? "M773 626H" + (900 + extension * 0.3) + "L" + (985 + extension * 0.6) + " " + y + "H" + x
+        : "M682 " + (index === 0 ? 555 : 695) + "H" + (865 + extension * 0.3) + "L" + (955 + extension * 0.6) + " " + y + "H" + x;
       path.setAttribute("d", shape);
-      terminals[index].setAttribute("cx", endX);
-      terminals[index].setAttribute("cy", endY);
-      centres[index].setAttribute("cx", endX);
-      centres[index].setAttribute("cy", endY);
+      terminals[index].setAttribute("cx", x);
+      terminals[index].setAttribute("cy", y);
+      return { x, y };
     });
+    drawConnections();
   };
 
   const tick = (time) => {
     if (lastTime !== null) elapsed += Math.min(time - lastTime, 64);
     lastTime = time;
     drawBranches(elapsed / 1000);
+    const nextIndex = Math.floor(elapsed / 2200) % destinations.length;
+    if (nextIndex !== automaticIndex) { automaticIndex = nextIndex; highlight(); }
     frame = window.requestAnimationFrame(tick);
   };
 
@@ -127,25 +140,32 @@
     toggle.setAttribute("aria-pressed", String(paused));
     toggle.disabled = preference.matches;
     motionLabel.textContent = preference.matches ? "Reduced motion" : userPaused ? "Resume motion" : "Pause motion";
-    toggle.title = preference.matches ? "Motion is off to match your device's reduced-motion preference" : "Pause or resume decorative animations";
     toggle.setAttribute("aria-label", motionLabel.textContent);
-
     if (stopped) {
       if (frame !== null) window.cancelAnimationFrame(frame);
       frame = null;
       lastTime = null;
-      if (preference.matches) drawBranches(0, true);
+      if (preference.matches) { drawBranches(0, true); automaticIndex = -1; }
     } else if (frame === null) {
+      automaticIndex = Math.floor(elapsed / 2200) % destinations.length;
       frame = window.requestAnimationFrame(tick);
     }
+    highlight();
   };
 
-  toggle.addEventListener("click", () => {
-    userPaused = !userPaused;
-    updateMotion();
+  destinations.forEach((element) => {
+    element.addEventListener("pointerenter", () => { hoveredKey = element.dataset.destination; highlight(); });
+    element.addEventListener("pointerleave", () => { hoveredKey = null; highlight(); });
+    element.addEventListener("focus", () => { focusedKey = element.dataset.destination; highlight(); });
+    element.addEventListener("blur", () => { focusedKey = null; highlight(); });
   });
+  toggle.addEventListener("click", () => { userPaused = !userPaused; updateMotion(); });
   preference.addEventListener("change", updateMotion);
   document.addEventListener("visibilitychange", updateMotion);
+  window.addEventListener("resize", measure);
+  if (window.ResizeObserver) new window.ResizeObserver(measure).observe(stage);
+  document.fonts?.ready.then(measure);
+  measure();
   toggle.hidden = false;
   updateMotion();
 })();
