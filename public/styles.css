@@ -71,13 +71,13 @@ a.destination:hover strong, a.destination:focus-visible strong { text-decoration
 .connection-tracks { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; overflow: visible; }
 .connection-tracks path { fill: none; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .track-base { stroke: #d6d0c9; stroke-width: 2; }
-.track-pulse { stroke: #ff7106; stroke-width: 6; opacity: 0; filter: drop-shadow(0 0 4px #ff710699); }
+.track-pulse { stroke: var(--orange); stroke-width: 3; opacity: 0; }
 .track-end { fill: #d6d0c9; }
-[data-route].is-highlighted .track-base { stroke: #e1700080; stroke-width: 3; }
-[data-route].is-highlighted .track-pulse { opacity: 1; stroke-dasharray: 16 100; animation: circuit-flow 1.15s linear infinite; }
+[data-route].is-highlighted .track-base { stroke: #e8b480; }
+[data-route].is-highlighted .track-pulse { opacity: 1; stroke-dasharray: 24 90; animation: circuit-flow 1.8s linear infinite; }
 [data-route].is-highlighted .track-end { fill: var(--orange); }
 .site-footer { height: 8px; background: var(--blue); }
-@keyframes circuit-flow { from { stroke-dashoffset: 16; } to { stroke-dashoffset: -100; } }
+@keyframes circuit-flow { to { stroke-dashoffset: -114; } }
 html.motion-paused .track-pulse { animation-play-state: paused !important; }
 
 @media (min-width: 1500px) { main { padding-block: 45px 110px; } }

@@ -41,6 +41,22 @@ class Element {
   getBoundingClientRect() { return { ...this.rect, right: this.rect.left + this.rect.width }; }
 }
 
+function pathPoints(data) {
+  const tokens = data.match(/[MHLV]|[-+]?\d*\.?\d+(?:e[-+]?\d+)?/gi);
+  const points = [];
+  let x = 0;
+  let y = 0;
+  for (let index = 0; index < tokens.length;) {
+    const command = tokens[index++];
+    if (command === "M" || command === "L") { x = Number(tokens[index++]); y = Number(tokens[index++]); }
+    else if (command === "H") x = Number(tokens[index++]);
+    else if (command === "V") y = Number(tokens[index++]);
+    else throw new Error("Unexpected path command: " + command);
+    points.push({ x, y });
+  }
+  return points;
+}
+
 function setup({ reduced = false, mobile = false, mutateConfig } = {}) {
   const nodes = new Map();
   const one = (selector, node = new Element()) => { nodes.set(selector, [node]); return node; };
@@ -173,7 +189,7 @@ test("unsafe and malformed URLs remain inactive", () => {
 test("all four destinations are highlighted in turn", () => {
   const page = setup();
   const seen = new Set();
-  for (let index = 0; index < 300; index++) {
+  for (let index = 0; index < 800; index++) {
     page.step(index * 32);
     const highlighted = page.highlightTargets.filter(node => node.classes.has("is-highlighted"));
     assert.equal(highlighted.length, 1);
@@ -204,11 +220,18 @@ test("branches remain attached and all three connector endpoints align with link
     page.step(frame * 32);
     page.paths.forEach((branch, index) => {
       const shape = branch.getAttribute("d");
-      const x = page.terminals[index].getAttribute("cx");
-      const y = page.terminals[index].getAttribute("cy");
+      const x = Number(page.terminals[index].getAttribute("cx"));
+      const y = Number(page.terminals[index].getAttribute("cy"));
       assert.ok(shape.startsWith(["M682 555H", "M773 626H", "M682 695H"][index]));
-      assert.ok(shape.endsWith(" " + y + "H" + x));
-      assert.ok(Number(x) + 43 < 1160);
+      const endpoint = pathPoints(shape).at(-1);
+      assert.ok(Math.abs(endpoint.x - x) < 0.000001);
+      assert.ok(Math.abs(endpoint.y - y) < 0.000001);
+      const stageX = page.logo.rect.left - page.stage.rect.left + (x - 140) * page.logo.rect.width / 1020;
+      assert.ok(stageX > 0 && stageX < page.stage.rect.width);
+      if (!page.routes[index].classes.has("is-highlighted")) {
+        assert.ok(x >= 1063 && x <= 1087);
+        assert.ok(Math.abs(y - [468, 626, 785][index]) <= 9);
+      }
     });
     page.routes.forEach((route, index) => {
       const target = page.destinations[index].getBoundingClientRect();
@@ -217,32 +240,111 @@ test("branches remain attached and all three connector endpoints align with link
       assert.equal(Number(end.getAttribute("cy")), target.top - 80 + target.height / 2);
       const shape = route.querySelector("path").getAttribute("d");
       assert.ok(!shape.includes("NaN"));
-      assert.ok(shape.endsWith(" " + end.getAttribute("cy") + "H" + end.getAttribute("cx")));
+      assert.deepEqual(pathPoints(shape).at(-1), { x: Number(end.getAttribute("cx")), y: Number(end.getAttribute("cy")) });
       const pulse = route.querySelectorAll("path")[1].getAttribute("d");
-      const anchor = [[682, 555], [773, 626], [682, 695]][index];
       const scale = page.logo.rect.width / 1020;
-      const startX = page.logo.rect.left - page.stage.rect.left + (anchor[0] - 140) * scale;
-      const startY = page.logo.rect.top - page.stage.rect.top + (anchor[1] - 140) * scale;
-      assert.ok(pulse.startsWith("M" + startX + " " + startY + "L"));
-      assert.ok(pulse.endsWith(" " + end.getAttribute("cy") + "H" + end.getAttribute("cx")));
+      const terminalX = page.logo.rect.left - page.stage.rect.left + (Number(page.terminals[index].getAttribute("cx")) - 140) * scale;
+      const terminalY = page.logo.rect.top - page.stage.rect.top + (Number(page.terminals[index].getAttribute("cy")) - 140) * scale;
+      const pulseStart = pathPoints(pulse)[0];
+      assert.equal(pulse, shape);
+      const gap = Math.hypot(pulseStart.x - terminalX, pulseStart.y - terminalY);
+      assert.ok(gap > 0 && gap <= 43 * scale + 0.000001);
     });
   }
   const sources = page.routes.map(route => route.querySelector("path").getAttribute("d").split("H")[0]);
   assert.equal(new Set(sources).size, 3);
 });
 
-test("mobile routes run beside the title and connect to link right edges; resize recalculates endpoints", () => {
+test("mobile routes run beside the logo and connect to link right edges; resize recalculates endpoints", () => {
   const page = setup({ mobile: true });
   page.step(0);
   page.routes.forEach((route, index) => {
     const target = page.destinations[index].getBoundingClientRect();
     const end = route.querySelector("circle");
     assert.equal(Number(end.getAttribute("cx")), target.right - 40);
-    assert.match(route.querySelector("path").getAttribute("d"), /H\d+V/);
+    const points = pathPoints(route.querySelector("path").getAttribute("d"));
+    assert.equal(points[1].x, points[2].x);
+    assert.ok(points[1].x > target.right - 40);
   });
   page.destinations[0].rect.top += 20;
   page.window.listeners.resize();
   assert.equal(Number(page.routes[0].querySelector("circle").getAttribute("cy")), page.destinations[0].rect.top - 80 + 37.5);
+});
+
+test("all three tracks keep moving gently even when no chapter branch is selected", () => {
+  const page = setup();
+  page.learningLink.listeners.pointerenter();
+  page.step(0);
+  const before = page.paths.map(path => path.getAttribute("d"));
+  for (let time = 32; time <= 640; time += 32) page.step(time);
+  page.paths.forEach((path, index) => assert.notEqual(path.getAttribute("d"), before[index]));
+  page.terminals.forEach((terminal, index) => {
+    assert.ok(Number(terminal.getAttribute("cx")) >= 1063 && Number(terminal.getAttribute("cx")) <= 1087);
+    assert.ok(Math.abs(Number(terminal.getAttribute("cy")) - [468, 626, 785][index]) <= 9);
+  });
+});
+
+test("selection extends at half speed and returns to continuous motion before the next chapter", () => {
+  const page = setup();
+  const background = setup();
+  background.learningLink.listeners.pointerenter();
+  let maximumTravel = 0;
+  let travelAt800 = 0;
+  let travelAt1600 = 0;
+  let sawRest = false;
+  let sawNextChapter = false;
+  for (let time = 0; time <= 6208; time += 32) {
+    page.step(time);
+    background.step(time);
+    const selected = page.highlightTargets.find(element => element.classes.has("is-highlighted")).dataset.destination;
+    if (selected === "products") {
+      const x = Number(page.terminals[0].getAttribute("cx"));
+      const y = Number(page.terminals[0].getAttribute("cy"));
+      const baseX = Number(background.terminals[0].getAttribute("cx"));
+      const baseY = Number(background.terminals[0].getAttribute("cy"));
+      const travel = Math.hypot(x - baseX, y - baseY) * page.logo.rect.width / 1020;
+      maximumTravel = Math.max(maximumTravel, travel);
+      if (time === 800) travelAt800 = travel;
+      if (time === 1600) travelAt1600 = travel;
+      for (const index of [1, 2]) {
+        assert.equal(page.paths[index].getAttribute("d"), background.paths[index].getAttribute("d"));
+      }
+      if (time >= 4800) {
+        sawRest = true;
+        assert.equal(x, baseX);
+        assert.equal(y, baseY);
+      }
+    } else if (!sawNextChapter) {
+      sawNextChapter = true;
+      assert.equal(selected, "team");
+      assert.ok(sawRest);
+      page.terminals.forEach((terminal, index) => {
+        assert.equal(terminal.getAttribute("cx"), background.terminals[index].getAttribute("cx"));
+        assert.equal(terminal.getAttribute("cy"), background.terminals[index].getAttribute("cy"));
+      });
+    }
+  }
+  assert.ok(maximumTravel > 120, "The selected branch should visibly travel along the connection");
+  assert.ok(travelAt1600 > travelAt800 * 1.6, "The slower extension should still be underway at 800 ms");
+  assert.ok(sawNextChapter);
+});
+
+test("a new hover waits for the previous extended branch to retract", () => {
+  const page = setup();
+  const background = setup();
+  background.learningLink.listeners.pointerenter();
+  let time = 0;
+  for (; time <= 1920; time += 32) { page.step(time); background.step(time); }
+  const extended = Number(page.terminals[0].getAttribute("cx"));
+  page.destinations[1].listeners.pointerenter();
+  assert.ok(page.routes[0].classes.has("is-highlighted"));
+  assert.ok(!page.routes[1].classes.has("is-highlighted"));
+  for (let index = 0; index < 29; index++, time += 32) { page.step(time); background.step(time); }
+  assert.ok(extended > 1063);
+  assert.ok(page.routes[1].classes.has("is-highlighted"));
+  assert.equal(page.terminals[0].getAttribute("cx"), background.terminals[0].getAttribute("cx"));
+  assert.equal(page.terminals[0].getAttribute("cy"), background.terminals[0].getAttribute("cy"));
+  assert.equal(page.terminals[1].getAttribute("cx"), background.terminals[1].getAttribute("cx"));
 });
 
 test("pause, hidden tabs, and reduced motion stop continuous motion", () => {

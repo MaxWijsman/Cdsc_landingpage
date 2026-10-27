@@ -24,7 +24,7 @@ Change teamName to update the large heading and page title. Update the fallback 
 
 ## Motion
 
-The logo's three circuit branches connect directly to Products, Team, and Contact in that order. A bright orange pulse travels from inside the logo along the full route to the highlighted chapter. Routes, link borders, and the central star light up in sequence; hovering or focusing a destination selects it. The unlettered star remains the AI Learning Track link. The heading spans the graphic above the logo and links. On mobile, the circuits run beside the logo to the stacked chapters.
+The logo's three circuit branches connect directly to Products, Team, and Contact in that order. All three branches keep moving gently and independently. The selected branch also extends along its connection, carrying its orange terminal with it, at half the original selection speed. Each six-second cycle extends, holds, retracts, then returns to gentle motion for 1200 ms before the next chapter highlights. Changing hover or keyboard focus while a branch is extended first retracts that branch over 900 ms. The original small orange pulse runs only from the terminal circle to the chapter. The unlettered star remains the AI Learning Track link. The heading spans the graphic above the logo and links. On mobile, the circuits follow their turns beside the logo to the stacked chapters.
 
 The icon-only pause button freezes decorative animation and changes to a play icon for resuming. Its accessible name and tooltip describe the action. Reduced-motion preferences stop automatic movement and cycling while retaining static hover/focus feedback. Hidden tabs suspend animation. Without JavaScript, the logo, name, and inactive destination labels remain visible.
 
