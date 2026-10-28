@@ -47,7 +47,7 @@ a { color: inherit; }
 .motion-toggle[aria-pressed="true"] .pause-icon { display: none; }
 .motion-toggle[aria-pressed="true"] .play-icon { display: block; }
 .motion-toggle:disabled { cursor: default; text-decoration: none; }
-main { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 45px; padding-block: 12px 72px; }
+main { position: relative; top: -100px; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 45px; padding-block: 12px 72px; }
 .connection-stage { position: relative; isolation: isolate; display: grid; grid-template-columns: 55% 34%; gap: 11%; width: 100%; }
 .identity { position: relative; z-index: 1; text-align: center; min-width: 0; }
 .logo-mark { display: block; width: min(100%, 460px); height: auto; margin-inline: auto; overflow: visible; }
@@ -91,7 +91,7 @@ html.motion-paused .track-pulse { animation-play-state: paused !important; }
   .page-width { width: calc(100% - 40px); }
   .site-header { padding: 13px 20px; min-height: 55px; }
   .motion-toggle { font-size: 13px; }
-  main { justify-content: flex-start; gap: 26px; padding-block: 8px 38px; }
+  main { top: 0; justify-content: flex-start; gap: 26px; padding-block: 8px 38px; }
   .connection-stage { grid-template-columns: minmax(0, 1fr); gap: 35px; }
   .logo-mark { width: min(100% - 18px, 320px); }
   .site-title { font-size: clamp(23px, 6vw, 35px); line-height: 1.4; }
