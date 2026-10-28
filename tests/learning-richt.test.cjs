@@ -144,7 +144,7 @@ test("new checkpoint fields survive storage and invalid choice IDs are discarded
   assert.deepEqual(Array.from(Q.games.inbox.hydrate({ ...inbox, examples: ["missing", "confirmed", "confirmed"] }).examples), ["confirmed"]);
 });
 
-test("revision upgrade preserves the two compatible games and remembers notice dismissal", () => {
+test("revision upgrade preserves compatible games without showing an update message", () => {
   const seed = environment(), raw = seed.Q.core.initialProgress();
   for (const id of seed.Q.content.order) {
     seed.Q.core.record(raw, id, perfect(seed.Q, id), true);
@@ -159,11 +159,11 @@ test("revision upgrade preserves the two compatible games and remembers notice d
   assert.equal(env.Q.core.summary(progress).percent, 40);
   assert.equal(progress.games.delegate.bestScore, 100);
   assert.equal(progress.games["data-danger"].bestScore, 100);
-  assert.match(env.ids.get("quest-body").textContent, /Vernieuwd met RICHT/);
-  button(env, "quest-body", "Begrepen").click();
+  assert.doesNotMatch(env.ids.get("quest-body").textContent, /Vernieuwd met RICHT/);
+  assert.equal(button(env, "quest-body", "Begrepen"), undefined);
   const reopened = environment({ storage }); reopened.Q.controller.init(); reopened.dialog.showModal(); reopened.Q.controller.onOpen();
   assert.doesNotMatch(reopened.ids.get("quest-body").textContent, /Vernieuwd met RICHT/);
-  assert.equal(reopened.Q.controller.getProgress().revisionNotice.length, 0);
+  assert.equal(reopened.ids.get("quest-body").querySelector(".q-revision-notice"), null);
 });
 
 test("the shared cheat sheet returns to every game without altering its attempt", () => {

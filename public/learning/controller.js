@@ -49,8 +49,7 @@
       return card;
     });
     const welcome = summary.completed ? "Oefen verder met RICHT en de promptingtechnieken." : "Oefen met RICHT en gesimuleerde AI. Begin waar je wilt; de nummers geven de aanbevolen volgorde aan.";
-    const notice = progress.revisionNotice.length ? V.el("div", { className: "q-revision-notice", role: "status" }, [V.el("p", {}, "Vernieuwd met RICHT: " + progress.revisionNotice.map((id) => Q.content.meta[id].title).join(", ") + ". Speel deze spellen opnieuw. De voortgang van de andere spellen blijft behouden."), V.button("Begrepen", () => { progress.revisionNotice = []; adapter.save(progress); render(true); })]) : null;
-    const content = V.el("div", {}, [notice, V.el("div", { className: "q-topline" }, [V.circuit(), V.el("p", {}, welcome)]), V.el("div", { className: "q-overview" }, cards)]);
+    const content = V.el("div", {}, [V.el("div", { className: "q-topline" }, [V.circuit(), V.el("p", {}, welcome)]), V.el("div", { className: "q-overview" }, cards)]);
     const last = progress.lastGameId;
     const resumable = last && progress.games[last]?.checkpoint?.phase !== "completed" && progress.games[last]?.checkpoint;
     const primary = resumable ? V.button("Hervat " + Q.content.meta[last].title, () => openGame(last), { primary: true }) : nextId ? V.button("Start " + Q.content.meta[nextId].title, () => openGame(nextId), { primary: true }) : V.button("Bekijk je leeroverzicht", showSummary, { primary: true });
