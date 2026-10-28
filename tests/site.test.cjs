@@ -229,8 +229,8 @@ test("branches remain attached and all three connector endpoints align with link
       const stageX = page.logo.rect.left - page.stage.rect.left + (x - 140) * page.logo.rect.width / 1020;
       assert.ok(stageX > 0 && stageX < page.stage.rect.width);
       if (!page.routes[index].classes.has("is-highlighted")) {
-        assert.ok(x >= 1063 && x <= 1087);
-        assert.ok(Math.abs(y - [468, 626, 785][index]) <= 9);
+        assert.ok(x >= 1063 && x <= 1099);
+        assert.ok(Math.abs(y - [468, 626, 785][index]) <= 13.5);
       }
     });
     page.routes.forEach((route, index) => {
@@ -279,8 +279,8 @@ test("all three tracks keep moving gently even when no chapter branch is selecte
   for (let time = 32; time <= 640; time += 32) page.step(time);
   page.paths.forEach((path, index) => assert.notEqual(path.getAttribute("d"), before[index]));
   page.terminals.forEach((terminal, index) => {
-    assert.ok(Number(terminal.getAttribute("cx")) >= 1063 && Number(terminal.getAttribute("cx")) <= 1087);
-    assert.ok(Math.abs(Number(terminal.getAttribute("cy")) - [468, 626, 785][index]) <= 9);
+    assert.ok(Number(terminal.getAttribute("cx")) >= 1063 && Number(terminal.getAttribute("cx")) <= 1099);
+    assert.ok(Math.abs(Number(terminal.getAttribute("cy")) - [468, 626, 785][index]) <= 13.5);
   });
 });
 

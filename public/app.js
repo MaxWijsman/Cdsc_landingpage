@@ -127,10 +127,10 @@
 
   const render = () => {
     paths.forEach((path, index) => {
-      // All three branches keep their original independent, gentle motion.
+      // A wider drift and bend make the independent motion more visible.
       const phase = motionTime * 0.0007 + index * 1.6;
-      const drift = preference.matches ? 0 : (Math.sin(phase) + 1) * 12;
-      const bend = preference.matches ? 0 : Math.sin(phase * 0.8) * 9;
+      const drift = preference.matches ? 0 : (Math.sin(phase) + 1) * 18;
+      const bend = preference.matches ? 0 : Math.sin(phase * 0.8) * 13.5;
       const baseX = 1063 + drift;
       const baseY = restY[index] + bend;
       let shape = preference.matches ? restShapes[index] : index === 1
