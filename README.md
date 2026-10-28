@@ -41,6 +41,8 @@ The workflow publishes public/. If the default branch differs from main, update 
 
 Push the project, including .gitlab-ci.yml, to the GitLab default branch. With CI runners and Pages enabled, the pipeline publishes public/. Find the URL under Deploy → Pages. The configuration uses current GitLab.com pages.publish syntax; older self-managed versions may require their version's syntax. See [GitLab Pages](https://docs.gitlab.com/user/project/pages/).
 
+The GitLab job runs in the official python:3.11-alpine image. It logs the Python version, checks the published files, and deploys public/ directly. No pip packages, Node.js, or compilation are needed in this image. Python 3.11's built-in HTTP server can also serve public/ for local review using the preview command above.
+
 Both hosts use the same files and relative URLs, including when hosted under a repository subpath. There is no backend, build step, or package installation.
 
 ## Checks
