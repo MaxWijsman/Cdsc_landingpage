@@ -295,4 +295,6 @@
   measure();
   toggle.hidden = false;
   updateMotion();
+  // Typed CSS properties keep the border glint smooth; older browsers retain the outline.
+  document.documentElement.classList.toggle("frame-motion-ready", typeof window.CSS?.registerProperty === "function");
 })();

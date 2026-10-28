@@ -57,7 +57,7 @@ function pathPoints(data) {
   return points;
 }
 
-function setup({ reduced = false, mobile = false, mutateConfig } = {}) {
+function setup({ reduced = false, mobile = false, typedCSS = true, mutateConfig } = {}) {
   const nodes = new Map();
   const one = (selector, node = new Element()) => { nodes.set(selector, [node]); return node; };
   const many = (selector, list) => { nodes.set(selector, list); return list; };
@@ -116,6 +116,7 @@ function setup({ reduced = false, mobile = false, mutateConfig } = {}) {
   const callbacks = new Map();
   let counter = 0;
   const window = {
+    CSS: typedCSS ? { registerProperty() {} } : undefined,
     listeners: {},
     matchMedia: query => query.includes("reduced") ? preference : { matches: mobile },
     requestAnimationFrame: fn => { callbacks.set(++counter, fn); return counter; },
@@ -361,6 +362,11 @@ test("a new hover waits for the previous extended branch to retract", () => {
   assert.equal(page.terminals[1].getAttribute("cx"), background.terminals[1].getAttribute("cx"));
 });
 
+test("the border glint is enabled only when typed CSS properties are supported", () => {
+  assert.ok(setup().document.documentElement.classes.has("frame-motion-ready"));
+  assert.ok(!setup({ typedCSS: false }).document.documentElement.classes.has("frame-motion-ready"));
+});
+
 test("pause, hidden tabs, and reduced motion stop continuous motion", () => {
   const page = setup();
   page.step(1000);
@@ -379,9 +385,11 @@ test("pause, hidden tabs, and reduced motion stop continuous motion", () => {
   page.document.hidden = true;
   page.document.listeners.visibilitychange();
   assert.equal(page.callbacks.size, 0);
+  assert.ok(page.document.documentElement.classes.has("motion-paused"));
   page.document.hidden = false;
   page.document.listeners.visibilitychange();
   assert.equal(page.callbacks.size, 1);
+  assert.ok(!page.document.documentElement.classes.has("motion-paused"));
   page.preference.matches = true;
   page.preference.listener();
   assert.equal(page.callbacks.size, 0);
@@ -395,8 +403,10 @@ test("opening the learning dialog suspends circuits without overwriting the user
   const visibility = page.document.listeners["cdsc:learning-visibility"];
   visibility({ detail: { open: true } });
   assert.equal(page.callbacks.size, 0);
+  assert.ok(page.document.documentElement.classes.has("motion-paused"));
   visibility({ detail: { open: false } });
   assert.equal(page.callbacks.size, 1);
+  assert.ok(!page.document.documentElement.classes.has("motion-paused"));
   page.toggle.listeners.click();
   visibility({ detail: { open: true } });
   visibility({ detail: { open: false } });

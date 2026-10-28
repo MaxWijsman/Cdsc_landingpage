@@ -31,6 +31,35 @@
 }
 * { box-sizing: border-box; }
 body { min-width: 320px; min-height: 100svh; margin: 0; display: flex; flex-direction: column; border-top: 8px solid var(--blue); }
+@property --frame-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.page-frame {
+  position: fixed;
+  inset: 8px;
+  z-index: 4;
+  border: 1px solid rgb(21 66 115 / 10%);
+  pointer-events: none;
+  filter: drop-shadow(0 0 2px rgb(21 66 115 / 20%));
+}
+@supports (mask-composite: exclude) or (-webkit-mask-composite: xor) {
+  html.frame-motion-ready .page-frame::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    padding: 1px;
+    background: conic-gradient(from var(--frame-angle), rgb(21 66 115 / 0%) 0deg, rgb(21 66 115 / 39%) 10deg, rgb(21 66 115 / 0%) 20deg);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    animation: frame-orbit 30s linear infinite;
+  }
+}
+@keyframes frame-orbit { to { --frame-angle: 360deg; } }
+html.motion-paused .page-frame::before { animation-play-state: paused; }
 button { font: inherit; }
 a { color: inherit; }
 [hidden] { display: none !important; }
@@ -102,5 +131,6 @@ html.motion-paused .track-pulse { animation-play-state: paused !important; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+  html.frame-motion-ready .page-frame::before { content: none; }
   [data-route].is-highlighted .track-pulse { stroke-dasharray: none; }
 }
