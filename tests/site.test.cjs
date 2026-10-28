@@ -232,8 +232,8 @@ test("branches remain attached and all three connector endpoints align with link
       const stageX = page.logo.rect.left - page.stage.rect.left + (x - 140) * page.logo.rect.width / 1020;
       assert.ok(stageX > 0 && stageX < page.stage.rect.width);
       if (!page.routes[index].classes.has("is-highlighted")) {
-        assert.ok(x >= 1063 && x <= 1099);
-        assert.ok(Math.abs(y - [468, 626, 785][index]) <= 13.5);
+        assert.ok(x >= 1063 && x <= 1117);
+        assert.ok(Math.abs(y - [468, 626, 785][index]) <= 20.25);
       }
     });
     page.routes.forEach((route, index) => {
@@ -274,20 +274,31 @@ test("mobile routes run beside the logo and connect to link right edges; resize 
   assert.equal(Number(page.routes[0].querySelector("circle").getAttribute("cy")), page.destinations[0].rect.top - 80 + 37.5);
 });
 
-test("all three tracks keep moving gently even when no chapter branch is selected", () => {
+test("all three tracks drift across a wider area even when no chapter branch is selected", () => {
   const page = setup();
   page.learningLink.listeners.pointerenter();
   page.step(0);
   const before = page.paths.map(path => path.getAttribute("d"));
-  for (let time = 32; time <= 640; time += 32) page.step(time);
+  const extents = page.terminals.map(() => ({ minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity }));
+  for (let time = 32; time <= 20000; time += 32) {
+    page.step(time);
+    page.terminals.forEach((terminal, index) => {
+      const x = Number(terminal.getAttribute("cx")), y = Number(terminal.getAttribute("cy"));
+      assert.ok(x >= 1063 && x <= 1117);
+      assert.ok(Math.abs(y - [468, 626, 785][index]) <= 20.25);
+      const extent = extents[index];
+      extent.minX = Math.min(extent.minX, x); extent.maxX = Math.max(extent.maxX, x);
+      extent.minY = Math.min(extent.minY, y); extent.maxY = Math.max(extent.maxY, y);
+    });
+  }
   page.paths.forEach((path, index) => assert.notEqual(path.getAttribute("d"), before[index]));
   page.terminals.forEach((terminal, index) => {
-    assert.ok(Number(terminal.getAttribute("cx")) >= 1063 && Number(terminal.getAttribute("cx")) <= 1099);
-    assert.ok(Math.abs(Number(terminal.getAttribute("cy")) - [468, 626, 785][index]) <= 13.5);
+    assert.ok(extents[index].maxX - extents[index].minX > 53);
+    assert.ok(extents[index].maxY - extents[index].minY > 40);
   });
 });
 
-test("selection covers half the distance at regular speed and returns before the next chapter", () => {
+test("selection covers half its former distance with unchanged timing and returns before the next chapter", () => {
   const page = setup();
   const background = setup();
   background.learningLink.listeners.pointerenter();
@@ -327,7 +338,7 @@ test("selection covers half the distance at regular speed and returns before the
       });
     }
   }
-  assert.ok(maximumTravel > 60 && maximumTravel < 110, "The extension should cover half its previous distance");
+  assert.ok(maximumTravel > 30 && maximumTravel <= 55, "The selection extension should now cover at most 55 CSS pixels");
   assert.ok(travelAt800 > travelAt400 * 1.6, "The original timing should reach full extension by 800 ms");
   assert.ok(sawNextChapter);
 });

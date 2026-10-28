@@ -145,8 +145,8 @@
     paths.forEach((path, index) => {
       // A wider drift and bend make the independent motion more visible.
       const phase = motionTime * 0.0007 + index * 1.6;
-      const drift = preference.matches ? 0 : (Math.sin(phase) + 1) * 18;
-      const bend = preference.matches ? 0 : Math.sin(phase * 0.8) * 13.5;
+      const drift = preference.matches ? 0 : (Math.sin(phase) + 1) * 27;
+      const bend = preference.matches ? 0 : Math.sin(phase * 0.8) * 20.25;
       const baseX = 1063 + drift;
       const baseY = restY[index] + bend;
       let shape = preference.matches ? restShapes[index] : index === 1
@@ -167,7 +167,7 @@
       }
       const selected = routes[index].dataset.route === activeKey;
       const radius = metrics ? 43 * metrics.scale : 0;
-      const maximumTravel = connection ? Math.max(0, Math.min(connection.length * 0.7, 220, connection.length - radius - 24)) * 0.5 : 0;
+      const maximumTravel = connection ? Math.max(0, Math.min(connection.length * 0.7, 220, connection.length - radius - 24)) * 0.25 : 0;
       const travel = selected ? maximumTravel * extensionAmount : 0;
       let terminalX = baseX;
       let terminalY = baseY;

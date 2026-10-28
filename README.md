@@ -24,7 +24,7 @@ Met teamName wijzig je de grote kop en de paginatitel. Pas ook de standaardtitel
 
 ## Animatie
 
-De drie printbanen verbinden het logo met Producten, Team en Contact. Alle banen blijven zacht en onafhankelijk bewegen. De geselecteerde baan schuift verder over de verbinding, met de oranje eindcirkel, over de helft van de eerdere afstand en met de oorspronkelijke snelheid. Elke cyclus van drie seconden bestaat uit uitschuiven, vasthouden en terugschuiven. Daarna beweegt de baan 600 ms rustig voordat de volgende bestemming oplicht. Bij een andere muis- of toetsenbordselectie schuift de vorige baan eerst in 450 ms terug. Het kleine oranje lichtpunt loopt van de eindcirkel naar de bestemming.
+De drie printbanen verbinden het logo met Producten, Team en Contact. Alle banen blijven zacht en onafhankelijk bewegen, met een 50% groter bewegingsbereik in de breedte en hoogte. De geselecteerde baan schuift met de oranje eindcirkel maximaal 55 CSS-pixels over de verbinding, begrensd door de beschikbare ruimte. Elke cyclus van drie seconden bestaat uit uitschuiven, vasthouden en terugschuiven. Daarna beweegt de baan 600 ms rustig voordat de volgende bestemming oplicht. Bij een andere muis- of toetsenbordselectie schuift de vorige baan eerst in 450 ms terug. Het kleine oranje lichtpunt loopt van de eindcirkel naar de bestemming.
 
 De ster blijft zonder letters. De teamnaam staat boven het logo en de links. Op mobiel lopen de printbanen naast het logo naar de onder elkaar geplaatste bestemmingen.
 
