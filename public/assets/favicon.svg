@@ -5,5 +5,5 @@
     <path d="M609 463C626 563 636 600 759 625C650 644 628 669 609 789C590 673 565 651 446 626C559 601 589 574 609 463Z"/>
     <circle cx="1063" cy="468" r="43"/><circle cx="1063" cy="626" r="43"/><circle cx="1063" cy="785" r="43"/>
   </g>
-  <path d="M682 555H865L955 468H1063M773 626H1063M682 695H865L955 785H1063" fill="none" stroke="#c5ae9c" stroke-width="35" stroke-linejoin="round"/>
+  <path d="M682 555H865L955 468H1063M773 626H1063M682 695H865L955 785H1063" fill="none" stroke="#154273" stroke-width="35" stroke-linejoin="round"/>
 </svg>
