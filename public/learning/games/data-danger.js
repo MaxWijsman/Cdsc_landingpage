@@ -23,6 +23,7 @@
     }
     else if (state.workflow === "decline" && scenario.preferred !== "decline") feedback.push("Niet versturen is veilig. Na het verwijderen van onnodige gegevens kun je deze taak ook uitvoeren met de goedgekeurde zakelijke assistent.");
     else feedback.push(scenario.classification === "restricted" ? "Goed: weglakken verandert de toegangsbeperking van het document niet. Gebruik het goedgekeurde proces zonder AI." : "Na het verwijderen van persoonsgegevens mogen de noodzakelijke interne feiten naar de fictieve goedgekeurde zakelijke assistent.");
+    feedback.push("RICHT — Context: deel alleen noodzakelijke, toegestane informatie. Een goede prompt verandert het gegevensbeleid niet.");
     return C.grade(minimization + workflowPoints, critical, feedback, remaining.map((span) => span.text).join(" ") || "[Alle documentinhoud verwijderd]");
   };
   C.register({

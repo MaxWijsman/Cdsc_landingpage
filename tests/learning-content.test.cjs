@@ -9,17 +9,17 @@ test("the catalog contains all sixteen scenario units with unique IDs and comple
   assert.equal(new Set(units.map(unit => unit.id)).size, 16);
   for (const id of Q.content.order) {
     assert.ok(Q.content.meta[id].title && Q.content.meta[id].skill && Q.content.meta[id].takeaway);
-    assert.equal(Q.games[id].revision, 1);
+    assert.equal(Q.games[id].revision, ["inbox", "repair", "hunter"].includes(id) ? 2 : 1);
     assert.equal(Q.core.result(perfect(Q, id)).score, 100);
   }
 });
 
 test("every Inbox ingredient combination has bounded scores and visibly unsafe instructions are capped", () => {
   const { Q } = environment();
-  for (let round = 0; round < 2; round++) {
-    const scenario = Q.content.inbox[round];
+  for (let round = 0; round < 1; round++) {
+    const scenario = Q.content.inbox[0];
     const visit = (slotIndex, choices, unsafe) => {
-      if (slotIndex === 6) {
+      if (slotIndex === 5) {
         const result = Q.games.inbox.evaluate({ round, choices, firstScore: null });
         assert.ok(result.score >= 0 && result.score <= 100);
         assert.equal(result.critical, unsafe);
@@ -37,7 +37,7 @@ test("all orders of constructive repair feedback can reach a factual full-score 
   const { Q } = environment();
   for (const a of ["structure", "next", "audience"]) for (const b of ["structure", "next", "audience"]) for (const c of ["structure", "next", "audience"]) {
     if (new Set([a, b, c]).size !== 3) continue;
-    for (let round = 0; round < 2; round++) {
+    for (let round = 1; round < 2; round++) {
       const result = Q.games.repair.evaluate({ round, actions: [a, b, c] });
       assert.equal(result.score, 100);
       assert.ok(result.output.includes(Q.content.repair[round].facts));
@@ -74,10 +74,10 @@ test("fictional policies and data never treat anonymization as permission", () =
     assert.ok(scenario.segments.some(span => !span.remove));
     assert.equal(new Set(scenario.segments.map(span => span.id)).size, scenario.segments.length);
   }
-  const inbox = Q.games.inbox.evaluate({ round: 0, choices: { task: "task-good" }, firstScore: null });
-  assert.match(inbox.feedback.join(" "), /doelgroep.*toon.*grenzen.*vorm/);
+  const inbox = Q.games.inbox.evaluate({ round: 0, choices: { role: "role-good" }, firstScore: null });
+  assert.match(inbox.feedback.join(" "), /Intentie.*Context.*Houding.*Template/);
   assert.doesNotMatch(inbox.feedback.join(" "), /audience|constraints|format/);
-  const repair = Q.games.repair.render({ ...Q.games.repair.createAttempt(), phase: "active" }, { view: Q.view, dispatch() {} });
+  const repair = Q.games.repair.render({ ...Q.games.repair.createAttempt(), phase: "active", round: 1, screen: "draft" }, { view: Q.view, dispatch() {} });
   assert.match(repair.body.textContent, /juistheid.*bondigheid.*structuur/);
   assert.doesNotMatch(repair.body.textContent, /accuracy|concise|structured/);
   const danger = Q.games["data-danger"];

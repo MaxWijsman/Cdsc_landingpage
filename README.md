@@ -60,10 +60,10 @@ De tests controleren de startpagina, alle vijf spellen, scores en veiligheidsgre
 
 Kies de oranje ster om het leerpaneel onderaan het scherm te openen. Alle spellen zijn direct beschikbaar:
 
-1. **Inbox in brand** — stel prompts samen en verbeter ze in twee e-mailscenario's.
+1. **Inbox in brand** — bouw een RICHT-prompt en kies passende few-shot voorbeelden voor een tweede e-mailscenario.
 2. **Uitbesteden of niet?** — verdeel acht werktaken naar de passende rol voor AI en mensen.
-3. **Verbeter mijn AI!** — verbeter twee samenvattingen met maximaal drie instructies per tekst.
-4. **Feitenjacht** — onderzoek zes uitspraken aan de hand van fictieve bronnen.
+3. **Verbeter mijn AI!** — laat AI je prompt met RICHT verbeteren en pas daarna een samenvatting aan in drie beurten.
+4. **Feitenjacht** — controleer tussenstappen, vergelijk drie antwoorden en toets zes uitspraken aan fictieve bronnen.
 5. **Datagevaar** — lak gegevens weg in twee fictieve documenten en kies een veilig proces.
 
 Antwoorden zijn vooraf ontworpen simulaties met het label ‘Gesimuleerde AI’. Er is geen extern AI-model, account, backend, telemetrie of API-sleutel. Alle namen en documenten zijn fictief. De oefenregels voor Datagevaar staan in `public/learning/content.js`. Vervang die alleen door beoordeeld organisatiebeleid en verhoog bij inhoudelijke wijzigingen de revisie van het spel.
@@ -75,6 +75,20 @@ Voortgang wordt na betekenisvolle keuzes opgeslagen in localStorage onder `cdsc.
 Elk spel heeft een score van 0–100 en maximaal drie sterren: vanaf 40 één ster, vanaf 70 twee en vanaf 90 drie. Onopgeloste kritieke veiligheidsfouten beperken een poging tot maximaal 39 punten. Voltooiing registreert deelname en is geen bewijs van bekwaamheid. Opnieuw spelen behoudt de beste score. De badge ‘AI-vaardig — Oefenbadge’ verschijnt wanneer alle vijf beste scores minstens 70 zijn, zonder onopgeloste kritieke veiligheidsfouten.
 
 Inhoud en spelcode worden bij de eerste opening geladen. Nieuwe spellen volgen het bestaande registercontract in `public/learning/core.js`: createAttempt, reduce, evaluate, render en hydrate, met versies en tests. Verhoog de spelrevisie bij onverenigbare inhouds- of scorewijzigingen; andere spellen behouden hun voortgang. Houd interne ID's gescheiden van de Nederlandse labels voor promptonderdelen, kwaliteitskenmerken en informatieklassen.
+
+## RICHT en promptingtechnieken
+
+RICHT staat voor Rol, Intentie, Context, Houding en Template. Rol beschrijft het vakperspectief van AI en geeft geen beslissingsbevoegdheid. Intentie beschrijft het doel. Context bevat feiten, doelgroep en grenzen. Houding gaat uitsluitend over toon en stijl. Template bepaalt de antwoordvorm. De spiekkaart is vanuit elk spel beschikbaar via de vraagtekenknop; teruggaan behoudt de opdracht en keuzes. Het eindoverzicht biedt dezelfde spiekkaart.
+
+Inbox in brand beoordeelt de vijf onderdelen met 15, 25, 30, 15 en 15 punten. In de tweede ronde zijn twee van vier voorbeelden passend; elk levert 50 punten op. Het patroon wordt overgenomen, maar de voorbeeldfeiten worden niet naar de nieuwe situatie gekopieerd. Een onbevoegde toezegging activeert de bestaande veiligheidsgrens.
+
+Meta-prompting betekent hier: AI helpt een prompt verbeteren, vraagt ontbrekende Context en Template uit en maakt een controleerbaar voorstel. De juiste meta-prompt levert 40 punten op en elk passend antwoord op de twee verduidelijkingsvragen 30. De tweede ronde behoudt de drie bestaande verbeterbeurten.
+
+Chain-of-thought prompting wordt geoefend met controleerbare tussenresultaten en een korte onderbouwing. De juiste aanpak levert in Feitenjacht 20 punten op; classificatie en brongebruik tellen samen voor 80. In de tweede ronde bekijk je drie afzonderlijke gesimuleerde antwoorden voordat je de uitspraken beoordeelt. Twee antwoorden bevatten dezelfde ongefundeerde claim. Zelf-consistentie vervangt daarom geen broncontrole; overeenstemming levert op zichzelf geen juistheidspunten op.
+
+De inhoudsversie is 2. Inbox in brand, Verbeter mijn AI! en Feitenjacht gebruiken spelrevisie 2; alleen deze drie spellen moeten na een upgrade opnieuw worden gespeeld. De twee andere spellen behouden hun compatibele scores en checkpoints. Een melding noemt de gewijzigde spellen en verdwijnt blijvend nadat de gebruiker ‘Begrepen’ kiest. Het opslagschema en de sleutel blijven gelijk. Voorbeeldkeuzes, antwoorden op verduidelijkingsvragen en bekeken antwoordvarianten worden eveneens lokaal opgeslagen. Het totaal blijft vijf spellen, 500 punten en vijftien sterren.
+
+De richtduur blijft 12–15 minuten, zonder tijdslimiet. Deze duur moet met beginners worden getoetst. De simulaties demonstreren technieken; ze garanderen geen identieke resultaten bij ieder AI-model. Achtergrond: [few-shot prompting](https://arxiv.org/abs/2005.14165), [Chain-of-thought prompting](https://arxiv.org/abs/2201.11903) en [zelf-consistentie](https://arxiv.org/abs/2203.11171).
 
 ## Bronnen van bestanden
 

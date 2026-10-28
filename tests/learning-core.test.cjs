@@ -27,7 +27,7 @@ test("Inbox blocks empty and duplicate generation; refinement does not commit ex
   const { Q } = environment(), game = Q.games.inbox;
   let state = game.reduce(game.createAttempt(), { type: "start" });
   assert.equal(game.reduce(state, { type: "generate" }).phase, "active");
-  state = game.reduce(state, { type: "choose", id: "task-unsafe" });
+  state = game.reduce(state, { type: "choose", id: "role-unsafe" });
   state = game.reduce(state, { type: "generate" });
   assert.equal(state.evaluation.critical, true);
   assert.ok(state.evaluation.score <= 39);
@@ -55,7 +55,7 @@ test("delegation feedback preserves final human authority", () => {
 
 test("repair feedback is stateful, bounded to three unique turns, and can remove unsupported claims", () => {
   const { Q } = environment(), game = Q.games.repair;
-  let state = game.reduce(game.createAttempt(), { type: "start" });
+  let state = { ...game.createAttempt(), phase: "active", round: 1, results: [{ score: 100, critical: false }] };
   state = game.reduce(state, { type: "apply", id: "stats" });
   assert.equal(game.evaluate(state).critical, true);
   state = game.reduce(state, { type: "apply", id: "structure" });
@@ -72,6 +72,8 @@ test("repair feedback is stateful, bounded to three unique turns, and can remove
 test("claim evidence credit is locked at classification and unsupported is not contradicted", () => {
   const { Q } = environment(), game = Q.games.hunter;
   let state = game.reduce(game.createAttempt(), { type: "start" });
+  state = game.reduce(state, { type: "method", id: "structured" });
+  state = game.reduce(state, { type: "screen", id: "claims" });
   state = game.reduce(state, { type: "claim", index: 2 });
   state = game.reduce(state, { type: "classify", id: "contradicted" });
   assert.equal(state.answers.cause.evidence, false);
@@ -124,21 +126,21 @@ test("partial choices survive browser storage and changed revisions invalidate o
   const { Q } = environment(), storage = memoryStorage(), adapter = Q.progress.create(storage);
   const progress = adapter.load();
   let state = Q.games.inbox.reduce(Q.games.inbox.createAttempt(), { type: "start" });
-  state = Q.games.inbox.reduce(state, { type: "choose", id: "task-good" });
+  state = Q.games.inbox.reduce(state, { type: "choose", id: "role-good" });
   Q.core.record(progress, "inbox", state, true);
   Q.core.record(progress, "delegate", perfect(Q, "delegate"), true);
   adapter.save(progress);
   const loaded = Q.progress.create(storage).load();
-  assert.equal(loaded.games.inbox.checkpoint.choices.task, "task-good");
-  Q.games.inbox.revision = 2;
+  assert.equal(loaded.games.inbox.checkpoint.choices.role, "role-good");
+  Q.games.inbox.revision = 3;
   const revised = Q.progress.create(storage).load();
   assert.equal(revised.games.inbox, undefined);
   assert.equal(revised.games.delegate.bestScore, 100);
   const newAttempt = Q.games.inbox.createAttempt();
-  assert.equal(newAttempt.revision, 2);
+  assert.equal(newAttempt.revision, 3);
   Q.core.record(revised, "inbox", newAttempt, true);
   adapter.save(revised);
-  assert.equal(Q.progress.create(storage).load().games.inbox.checkpoint.revision, 2);
+  assert.equal(Q.progress.create(storage).load().games.inbox.checkpoint.revision, 3);
 });
 
 test("malformed or unsupported storage is preserved until explicit reset; quota failures use memory", () => {

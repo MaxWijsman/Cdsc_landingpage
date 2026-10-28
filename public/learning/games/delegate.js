@@ -5,7 +5,7 @@
   const evaluate = (state) => {
     const card = content.delegation[state.round];
     const correct = state.category === card.answer;
-    return C.grade(correct ? 100 : 0, !correct && !!card.critical, [correct ? "Goed ingeschat. " + card.why : "Een betere keuze: " + content.categories.find((item) => item.id === card.answer).label + ". " + card.why]);
+    return C.grade(correct ? 100 : 0, !correct && !!card.critical, [correct ? "Goed ingeschat. " + card.why : "Een betere keuze: " + content.categories.find((item) => item.id === card.answer).label + ". " + card.why, "RICHT — Rol: AI ondersteunt. Mensen behouden bevoegdheid en verantwoordelijkheid; een prompt verandert dat niet."]);
   };
   C.register({
     id: "delegate", revision: 1, count: 8,

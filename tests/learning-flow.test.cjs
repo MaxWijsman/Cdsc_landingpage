@@ -1,18 +1,13 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { environment, memoryStorage } = require("./helpers/learning.cjs");
+const { environment, memoryStorage, roundActions } = require("./helpers/learning.cjs");
 
 function play(controller, Q, id) {
   controller.openGame(id);
   controller.dispatch({ type: "start" });
   for (let round = 0; round < Q.games[id].count; round++) {
-    const send = action => controller.dispatch(action);
-    if (id === "inbox") { for (const slot of Q.content.slots) { send({ type: "slot", id: slot }); send({ type: "choose", id: slot + "-good" }); } send({ type: "generate" }); }
-    if (id === "delegate") send({ type: "classify", id: Q.content.delegation[round].answer });
-    if (id === "repair") { send({ type: "screen", id: "actions" }); for (const action of ["structure", "next", "audience"]) send({ type: "apply", id: action }); send({ type: "finish" }); }
-    if (id === "hunter") { for (let index = 0; index < 3; index++) { send({ type: "claim", index }); send({ type: "evidence" }); send({ type: "classify", id: Q.content.hunter[round].claims[index].answer }); } send({ type: "check" }); }
-    if (id === "data-danger") { for (const span of Q.content.danger[round].segments.filter(span => span.remove)) send({ type: "redact", id: span.id }); send({ type: "screen", id: "workflow" }); send({ type: "workflow", id: Q.content.danger[round].preferred }); send({ type: "check" }); }
-    send({ type: "next" });
+    for (const action of roundActions(Q, id, round)) controller.dispatch(action);
+    controller.dispatch({ type: "next" });
   }
 }
 
@@ -83,7 +78,7 @@ test("Inbox vertical slice persists after an actual UI choice and resumes in a f
   env.Q.controller.init(); env.dialog.showModal(); env.Q.controller.onOpen();
   const card = env.ids.get("quest-body").querySelectorAll("button").find(button => button.textContent.includes("Inbox in brand"));
   card.click(); env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Start het spel").click();
-  const ingredient = env.ids.get("quest-body").querySelectorAll("button").find(button => button.textContent.includes("Wijs het verzoek"));
+  const ingredient = env.ids.get("quest-body").querySelectorAll("button").find(button => button.textContent.includes("Je bent een communicatieadviseur"));
   ingredient.click();
   env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Genereer").click();
   assert.equal(env.Q.controller.getAttempt().phase, "feedback");
@@ -95,9 +90,9 @@ test("Inbox vertical slice persists after an actual UI choice and resumes in a f
   const reopened = environment({ storage }); reopened.Q.controller.init(); reopened.dialog.showModal(); reopened.Q.controller.onOpen();
   assert.match(reopened.ids.get("quest-footer").textContent, /Hervat Inbox in brand/);
   reopened.Q.controller.openGame("inbox");
-  assert.equal(reopened.Q.controller.getAttempt().choices.task, "task-good");
+  assert.equal(reopened.Q.controller.getAttempt().choices.role, "role-good");
   assert.equal(reopened.Q.controller.getAttempt().phase, "feedback");
-  assert.match(reopened.ids.get("quest-body").textContent, /Bedankt voor uw verzoek/);
+  assert.match(reopened.ids.get("quest-body").textContent, /Bedankt voor uw bericht/);
   assert.doesNotMatch(reopened.ids.get("quest-body").textContent, /Old English draft/);
 });
 

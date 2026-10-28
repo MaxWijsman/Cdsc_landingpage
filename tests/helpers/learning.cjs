@@ -54,7 +54,7 @@ function environment({ preload = true, storage = memoryStorage(), reduced = fals
   body.append(dialog);
   const header = new Element("header");
   dialog.append(header);
-  header.append(node("quest-home", "button"), node("quest-title", "h2"), node("quest-subtitle", "span"), node("quest-score", "span"), node("quest-close", "button"));
+  header.append(node("quest-home", "button"), node("quest-title", "h2"), node("quest-subtitle", "span"), node("quest-score", "span"), node("quest-help", "button"), node("quest-close", "button"));
   dialog.append(node("quest-body", "section"), node("quest-footer", "footer"), node("quest-announcement"));
   document = {
     head, body, activeElement: null, baseURI: "http://localhost/project/", currentScript: { src: "http://localhost/project/learning/launcher.js" }, events: [],
@@ -76,17 +76,38 @@ function environment({ preload = true, storage = memoryStorage(), reduced = fals
   return { Q: window.CDSCLearning, window, document, context, ids, trigger, dialog, run, timers, requestedScripts, flush: async () => { for (let index = 0; index < 30; index++) await Promise.resolve(); } };
 }
 
+function roundActions(Q, id, round) {
+  const actions = [];
+  const send = action => actions.push(action);
+  if (id === "inbox") {
+    if (round === 0) for (const slot of Q.content.slots) { send({ type: "slot", id: slot }); send({ type: "choose", id: slot + "-good" }); }
+    else for (const example of ["confirmed", "uncertain"]) send({ type: "toggle-example", id: example });
+    send({ type: "generate" });
+  }
+  if (id === "delegate") send({ type: "classify", id: Q.content.delegation[round].answer });
+  if (id === "repair") {
+    if (round === 0) { send({ type: "meta-choice", id: "richt" }); for (const question of Q.content.metaPrompt.questions) send({ type: "clarify", question: question.id, id: question.answer }); }
+    else for (const action of ["structure", "next", "audience"]) send({ type: "apply", id: action });
+    send({ type: "finish" });
+  }
+  if (id === "hunter") {
+    if (round === 0) send({ type: "method", id: "structured" });
+    else for (const variant of Q.content.variants) send({ type: "variant", id: variant.id });
+    send({ type: "screen", id: "claims" });
+    for (let index = 0; index < 3; index++) { send({ type: "claim", index }); send({ type: "evidence" }); send({ type: "classify", id: Q.content.hunter[round].claims[index].answer }); }
+    send({ type: "check" });
+  }
+  if (id === "data-danger") { for (const span of Q.content.danger[round].segments.filter(span => span.remove)) send({ type: "redact", id: span.id }); send({ type: "screen", id: "workflow" }); send({ type: "workflow", id: Q.content.danger[round].preferred }); send({ type: "check" }); }
+  return actions;
+}
+
 function perfect(Q, id) {
   const game = Q.games[id];
   let state = game.reduce(game.createAttempt(), { type: "start" });
   for (let round = 0; round < game.count; round++) {
-    if (id === "inbox") { for (const slot of Q.content.slots) { state = game.reduce(state, { type: "slot", id: slot }); state = game.reduce(state, { type: "choose", id: slot + "-good" }); } state = game.reduce(state, { type: "generate" }); }
-    if (id === "delegate") state = game.reduce(state, { type: "classify", id: Q.content.delegation[round].answer });
-    if (id === "repair") { for (const action of ["structure", "next", "audience"]) state = game.reduce(state, { type: "apply", id: action }); state = game.reduce(state, { type: "finish" }); }
-    if (id === "hunter") { for (let index = 0; index < 3; index++) { state = game.reduce(state, { type: "claim", index }); state = game.reduce(state, { type: "evidence" }); state = game.reduce(state, { type: "classify", id: Q.content.hunter[round].claims[index].answer }); } state = game.reduce(state, { type: "check" }); }
-    if (id === "data-danger") { for (const span of Q.content.danger[round].segments.filter(span => span.remove)) state = game.reduce(state, { type: "redact", id: span.id }); state = game.reduce(state, { type: "workflow", id: Q.content.danger[round].preferred }); state = game.reduce(state, { type: "check" }); }
+    for (const action of roundActions(Q, id, round)) state = game.reduce(state, action);
     state = game.reduce(state, { type: "next" });
   }
   return state;
 }
-module.exports = { environment, memoryStorage, perfect, root };
+module.exports = { environment, memoryStorage, perfect, roundActions, root };
