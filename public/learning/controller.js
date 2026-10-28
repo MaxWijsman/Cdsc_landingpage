@@ -33,20 +33,11 @@
   };
   const showOverview = () => { save(); activeId = null; state = null; screen = "overview"; render(true); };
   const showSummary = () => { save(); activeId = null; state = null; screen = "summary"; render(true); };
-  const onOpen = () => {
-    if (progress.welcomeSeen) { showOverview(); return; }
-    save(); activeId = null; state = null; screen = "welcome"; render(true);
-  };
-  const welcomeView = () => {
-    const welcome = Q.content.welcome;
-    const goals = V.el("ul", { className: "q-welcome-goals" }, Q.content.order.map((id) => V.el("li", {}, [V.el("strong", {}, Q.content.meta[id].title), V.el("span", {}, welcome.goals[id])])));
-    return { body: V.layout(welcome.title, welcome.description, [V.el("h4", {}, "Dit oefen je"), goals], welcome.hint), note: "Gesimuleerde AI · Ongeveer 12–15 minuten · Je kiest zelf de volgorde.", buttons: [V.button("Bekijk de opdrachten", () => { progress.welcomeSeen = true; showOverview(); }, { primary: true })] };
-  };
   const showHelp = () => { save(); if (screen !== "help") helpReturn = screen; screen = "help"; helpTopic = "richt"; render(true); };
   const helpView = () => {
     const tabs = V.el("div", { className: "q-tabs", role: "group", "aria-label": "Kies uitleg" }, [V.button("RICHT", () => { helpTopic = "richt"; render(true); }, { className: "q-choice", pressed: helpTopic === "richt", key: "help-richt" }), V.button("Promptingtechnieken", () => { helpTopic = "techniques"; render(true); }, { className: "q-choice", pressed: helpTopic === "techniques", key: "help-techniques" })]);
     const cards = helpTopic === "richt" ? Q.content.richt.map((item) => V.el("article", { className: "q-reference" }, [V.el("h4", {}, item.label), V.el("p", {}, item.definition), V.el("p", { className: "q-small" }, "Bijvoorbeeld: “" + item.example + "”")])) : Q.content.techniques.map((item) => V.el("article", { className: "q-reference" }, [V.el("h4", {}, item.title), V.el("p", {}, item.text), V.el("p", { className: "q-small" }, "Oefen in: " + Q.content.meta[item.game].title)]));
-    return { body: V.el("div", {}, [V.el("div", { className: "q-reference-heading" }, [V.el("h3", {}, helpTopic === "richt" ? "RICHT-spiekkaart" : "Vier promptingtechnieken"), tabs]), V.el("div", { className: "q-reference-grid" + (helpTopic === "techniques" ? " q-techniques" : "") }, cards)]), note: "De simulaties tonen technieken; resultaten verschillen per AI-model.", buttons: [V.button("Terug naar " + (helpReturn === "welcome" ? "de introductie" : helpReturn === "game" ? "het spel" : helpReturn === "summary" ? "het leeroverzicht" : "het overzicht"), () => { screen = helpReturn; render(true); }, { primary: true })] };
+    return { body: V.el("div", {}, [V.el("div", { className: "q-reference-heading" }, [V.el("h3", {}, helpTopic === "richt" ? "RICHT-spiekkaart" : "Vier promptingtechnieken"), tabs]), V.el("div", { className: "q-reference-grid" + (helpTopic === "techniques" ? " q-techniques" : "") }, cards)]), note: "De simulaties tonen technieken; resultaten verschillen per AI-model.", buttons: [V.button("Terug naar " + (helpReturn === "game" ? "het spel" : helpReturn === "summary" ? "het leeroverzicht" : "het overzicht"), () => { screen = helpReturn; render(true); }, { primary: true })] };
   };
   const overview = () => {
     const summary = C.summary(progress);
@@ -57,7 +48,7 @@
       card.append(V.el("small", {}, String(index + 1).padStart(2, "0") + " · " + meta.duration), V.el("strong", {}, meta.title), V.el("small", {}, meta.skill), V.el("span", { className: "q-card-score" }, entry?.completed ? V.starsText(entry.bestScore) + " · " + entry.bestScore + "/100" : entry?.checkpoint ? "Ga verder" : id === nextId ? "Aanbevolen volgende spel" : "Klaar om te spelen"));
       return card;
     });
-    const welcome = summary.completed ? "Oefen verder met RICHT en de promptingtechnieken." : "Oefen met RICHT en gesimuleerde AI. Begin waar je wilt; de nummers geven de aanbevolen volgorde aan.";
+    const welcome = summary.completed ? "Oefen in het gebruik van AI met het RICHT-Framework" : "Oefen met RICHT en gesimuleerde AI. Begin waar je wilt; de nummers geven de aanbevolen volgorde aan.";
     const content = V.el("div", {}, [V.el("div", { className: "q-topline" }, [V.circuit(), V.el("p", {}, welcome)]), V.el("div", { className: "q-overview" }, cards)]);
     const last = progress.lastGameId;
     const resumable = last && progress.games[last]?.checkpoint?.phase !== "completed" && progress.games[last]?.checkpoint;
@@ -92,12 +83,11 @@
     const previousKey = document.activeElement?.getAttribute("data-q-focus");
     const summary = C.summary(progress);
     document.getElementById("quest-score").textContent = summary.completed + "/5 · " + summary.stars + "★";
-    home.hidden = screen === "overview" || screen === "welcome";
-    document.getElementById("quest-subtitle").textContent = screen === "welcome" ? "Welkom in het AI-leerpad" : screen === "game" && activeId ? Q.content.meta[activeId].title + " · " + (state.round + 1) + "/" + Q.games[activeId].count : screen === "summary" ? "Je leeroverzicht" : "Vijf korte spellen · ongeveer 12–15 minuten";
+    home.hidden = screen === "overview";
+    document.getElementById("quest-subtitle").textContent = screen === "game" && activeId ? Q.content.meta[activeId].title + " · " + (state.round + 1) + "/" + Q.games[activeId].count : screen === "summary" ? "Je leeroverzicht" : "Vijf korte spellen · ongeveer 12–15 minuten";
     let view;
     try {
       if (screen === "reset") view = { body: V.layout("Alle oefenvoortgang wissen?", "Dit wist alleen de voortgang van het AI Werkplekavontuur in deze browser. Je kunt dit niet ongedaan maken.", V.el("p", {}, "Je kunt een spel opnieuw spelen zonder je beste score te wissen.")), note: "Je voorkeuren voor de startpagina blijven behouden.", buttons: [V.button("Bewaar voortgang", () => { screen = "overview"; render(true); }, { primary: true }), V.button("Wis alle voortgang", () => { progress = adapter.reset(); activeId = null; state = null; screen = "overview"; render(true); announce("Je oefenvoortgang is gewist."); })] };
-      else if (screen === "welcome") view = welcomeView();
       else if (screen === "help") view = helpView();
       else if (screen === "summary") view = summaryView();
       else if (screen === "overview") view = overview();
@@ -143,5 +133,5 @@
     home.addEventListener("click", showOverview);
     document.getElementById("quest-help").addEventListener("click", showHelp);
   };
-  Q.controller = { init, save, openGame, dispatch, showOverview, showSummary, showHelp, onOpen, getProgress: () => C.clone(progress), getAttempt: () => state ? C.clone(state) : null };
+  Q.controller = { init, save, openGame, dispatch, showOverview, showSummary, showHelp, onOpen: showOverview, getProgress: () => C.clone(progress), getAttempt: () => state ? C.clone(state) : null };
 })(window.CDSCLearning);

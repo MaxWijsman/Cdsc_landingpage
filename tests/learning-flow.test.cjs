@@ -76,7 +76,6 @@ test("external mode binds no modal trigger and keyboard focus wraps inside the d
 test("Inbox vertical slice persists after an actual UI choice and resumes in a fresh page", () => {
   const storage = memoryStorage(), env = environment({ storage });
   env.Q.controller.init(); env.dialog.showModal(); env.Q.controller.onOpen();
-  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Bekijk de opdrachten").click();
   const card = env.ids.get("quest-body").querySelectorAll("button").find(button => button.textContent.includes("Inbox in brand"));
   card.click(); env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Start het spel").click();
   const ingredient = env.ids.get("quest-body").querySelectorAll("button").find(button => button.textContent.includes("Je bent een communicatieadviseur"));
@@ -134,59 +133,4 @@ test("scenario text is rendered as text, and private-mode storage failures do no
   assert.match(env.ids.get("quest-body").textContent, /<img src=x/);
   assert.equal(env.ids.get("quest-body").querySelector("img"), null);
   assert.match(env.ids.get("quest-footer").textContent, /alleen tijdens dit bezoek/);
-});
-
-test("the first opening explains all five goals, then remembers the introduction across visits", async () => {
-  const storage = memoryStorage();
-  const env = environment({ storage, preload: false, reduced: true });
-  env.run("launcher.js"); env.trigger.click(); await env.flush();
-  assert.match(env.ids.get("quest-body").textContent, /Meer grip op AI in je werk/);
-  assert.match(env.ids.get("quest-body").textContent, /AI duidelijk aanstuurt, antwoorden beoordeelt/);
-  assert.match(env.ids.get("quest-footer").textContent, /Gesimuleerde AI.*12–15 minuten/);
-  for (const id of env.Q.content.order) {
-    assert.ok(env.ids.get("quest-body").textContent.includes(env.Q.content.meta[id].title));
-    assert.ok(env.ids.get("quest-body").textContent.includes(env.Q.content.welcome.goals[id]));
-  }
-  assert.equal(env.Q.controller.getProgress().welcomeSeen, false);
-  env.ids.get("quest-help").click();
-  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Terug naar de introductie").click();
-  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Bekijk de opdrachten").click();
-  assert.equal(env.ids.get("quest-body").querySelectorAll(".q-game-card").length, 5);
-  assert.equal(env.Q.controller.getProgress().welcomeSeen, true);
-  env.ids.get("quest-close").click(); env.trigger.click(); await env.flush();
-  assert.doesNotMatch(env.ids.get("quest-body").textContent, /Meer grip op AI in je werk/);
-  const reopened = environment({ storage, preload: false });
-  reopened.run("launcher.js"); reopened.trigger.click(); await reopened.flush();
-  assert.equal(reopened.ids.get("quest-body").querySelectorAll(".q-game-card").length, 5);
-  assert.doesNotMatch(reopened.ids.get("quest-body").textContent, /Meer grip op AI in je werk/);
-});
-
-test("an unfinished welcome can be reopened and unavailable storage does not block the introduction", async () => {
-  const storage = { getItem() { throw new Error("blocked"); }, setItem() { throw new Error("blocked"); }, removeItem() {} };
-  const env = environment({ storage, preload: false, reduced: true });
-  env.run("launcher.js"); env.trigger.click(); await env.flush();
-  env.ids.get("quest-close").click(); env.trigger.click(); await env.flush();
-  assert.match(env.ids.get("quest-body").textContent, /Meer grip op AI in je werk/);
-  assert.equal(Object.keys(env.Q.controller.getProgress().games).length, 0);
-  assert.match(env.ids.get("quest-footer").textContent, /alleen tijdens dit bezoek/);
-  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Bekijk de opdrachten").click();
-  env.ids.get("quest-close").click(); env.trigger.click(); await env.flush();
-  assert.equal(env.ids.get("quest-body").querySelectorAll(".q-game-card").length, 5);
-});
-
-test("adding the welcome flag preserves compatible scores and checkpoints from existing storage", () => {
-  const storage = memoryStorage(), seed = environment({ storage });
-  seed.Q.controller.init(); seed.dialog.showModal(); play(seed.Q.controller, seed.Q, "delegate");
-  const saved = JSON.parse(storage.getItem(seed.Q.progress.key));
-  delete saved.welcomeSeen;
-  storage.setItem(seed.Q.progress.key, JSON.stringify(saved));
-  const env = environment({ storage }); env.Q.controller.init(); env.dialog.showModal(); env.Q.controller.onOpen();
-  assert.match(env.ids.get("quest-body").textContent, /Meer grip op AI in je werk/);
-  assert.equal(env.Q.controller.getProgress().games.delegate.bestScore, 100);
-  assert.equal(env.Q.controller.getProgress().games.delegate.checkpoint.phase, "completed");
-  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Bekijk de opdrachten").click();
-  const progress = env.Q.controller.getProgress();
-  assert.equal(progress.welcomeSeen, true);
-  assert.equal(progress.games.delegate.attemptCount, saved.games.delegate.attemptCount);
-  assert.equal(progress.games.delegate.bestScore, 100);
 });
