@@ -5,6 +5,6 @@ window.CDSC_CONFIG = {
     products: { label: "Products", url: "" },
     team: { label: "Team", url: "" },
     contact: { label: "Contact", url: "" },
-    learning: { label: "AI Learning Track", url: "" },
+    learning: { label: "AI Learning Track", mode: "embedded", url: "" },
   },
 };

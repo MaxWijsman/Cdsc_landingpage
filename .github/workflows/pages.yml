@@ -13,10 +13,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Test landing page and learning track
+        run: node --test
+      - name: Check Python 3.11 Alpine publication
+        run: docker run --rm --network none --mount "type=bind,source=$GITHUB_WORKSPACE,target=/workspace,readonly" --workdir /workspace python:3.11-alpine python tests/check_static_site.py
+
   deploy:
+    needs: test
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:

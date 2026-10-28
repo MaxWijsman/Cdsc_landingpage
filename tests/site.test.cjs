@@ -137,7 +137,7 @@ function setup({ reduced = false, mobile = false, mutateConfig } = {}) {
   };
 }
 
-test("three unconfigured chapters and the learning star retain missing-link states", () => {
+test("three unconfigured chapters stay inactive while the learning star opens an embedded dialog", () => {
   const page = setup();
   assert.equal(page.destinations.length, 3);
   page.placeholders.forEach(node => {
@@ -147,7 +147,10 @@ test("three unconfigured chapters and the learning star retain missing-link stat
   assert.equal(page.document.title, "COMMIT Datascience Cell");
   assert.equal(page.nodes.get("[data-name-rest]")[0].textContent, "Datascience Cell");
   assert.equal(page.learningLink.getAttribute("href"), undefined);
-  assert.equal(page.learningLink.getAttribute("aria-label"), "AI Learning Track — Coming soon");
+  assert.equal(page.learningLink.getAttribute("aria-label"), "AI Learning Track");
+  assert.equal(page.learningLink.getAttribute("role"), "button");
+  assert.equal(page.learningLink.getAttribute("aria-haspopup"), "dialog");
+  assert.equal(page.learningLink.getAttribute("aria-disabled"), undefined);
 });
 
 test("configured links open in the same tab and hide placeholder status", () => {
@@ -168,7 +171,7 @@ test("configured links open in the same tab and hide placeholder status", () => 
 });
 
 test("the central SVG star opens the configured learning URL as an accessible same-tab link", () => {
-  const page = setup({ mutateConfig(config) { config.destinations.learning.url = "https://example.org/learn"; } });
+  const page = setup({ mutateConfig(config) { config.destinations.learning.mode = "external"; config.destinations.learning.url = "https://example.org/learn"; } });
   assert.equal(page.learningLink.getAttribute("href"), "https://example.org/learn");
   assert.equal(page.learningLink.getAttribute("aria-disabled"), undefined);
   assert.equal(page.learningLink.getAttribute("aria-label"), "AI Learning Track");
@@ -180,7 +183,7 @@ test("the central SVG star opens the configured learning URL as an accessible sa
 
 test("unsafe and malformed URLs remain inactive", () => {
   for (const url of ["javascript:alert(1)", "data:text/html,test", "/relative", "not a URL", ""]) {
-    const page = setup({ mutateConfig(config) { config.destinations.products.url = url; config.destinations.learning.url = url; } });
+    const page = setup({ mutateConfig(config) { config.destinations.products.url = url; config.destinations.learning.mode = "external"; config.destinations.learning.url = url; } });
     assert.equal(page.placeholders[0].replacement, undefined, url);
     assert.equal(page.learningLink.getAttribute("href"), undefined, url);
   }
@@ -376,6 +379,20 @@ test("pause, hidden tabs, and reduced motion stop continuous motion", () => {
   assert.equal(page.routes.filter(route => route.classes.has("is-highlighted")).length, 0);
 });
 
+test("opening the learning dialog suspends circuits without overwriting the user's pause choice", () => {
+  const page = setup();
+  const visibility = page.document.listeners["cdsc:learning-visibility"];
+  visibility({ detail: { open: true } });
+  assert.equal(page.callbacks.size, 0);
+  visibility({ detail: { open: false } });
+  assert.equal(page.callbacks.size, 1);
+  page.toggle.listeners.click();
+  visibility({ detail: { open: true } });
+  visibility({ detail: { open: false } });
+  assert.equal(page.callbacks.size, 0);
+  assert.equal(page.toggle.getAttribute("aria-label"), "Resume motion");
+});
+
 test("static fallback has the logo, title, four destinations, local fonts, and no marketing copy", () => {
   const html = fs.readFileSync(path.join(root, "public/index.html"), "utf8");
   assert.match(html, /data-name-first>COMMIT/);
@@ -387,7 +404,7 @@ test("static fallback has the logo, title, four destinations, local fonts, and n
   assert.deepEqual(Array.from(nav.matchAll(/data-destination="([^"]+)"/g), match => match[1]), ["products", "team", "contact"]);
   assert.doesNotMatch(html, /data-motion-label/);
   assert.doesNotMatch(html, /star-label|>AI<\/text>/);
-  assert.match(html, /class="learning-star"[^>]+role="link"[^>]+tabindex="0"/);
+  assert.match(html, /class="learning-star"[^>]+role="button"[^>]+tabindex="0"/);
   assert.doesNotMatch(html, /hero-introduction|<p>|Build\.|Explore the cell|star-field/);
   for (const match of html.matchAll(/(?:src|href)="(\.\/[^"#]+)"/g)) {
     assert.ok(fs.existsSync(path.resolve(root, "public", match[1])), match[1]);

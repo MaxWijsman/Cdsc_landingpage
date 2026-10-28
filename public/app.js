@@ -43,13 +43,28 @@
   const learning = config.destinations?.learning || {};
   const learningLabel = typeof learning.label === "string" && learning.label.trim() ? learning.label : "AI Learning Track";
   const learningUrl = safeUrl(learning.url);
-  const learningName = learningLabel + (learningUrl ? "" : " — Coming soon");
+  const embedded = learning.mode !== "external";
+  const learningName = learningLabel + (embedded || learningUrl ? "" : " — Coming soon");
   learningLink.setAttribute("aria-label", learningName);
   document.getElementById("learning-link-title").textContent = learningName;
   learningLink.querySelector(".star-hint").textContent = learningLabel;
-  if (learningUrl) {
+  if (embedded) {
+    learningLink.removeAttribute("href");
+    learningLink.removeAttribute("aria-disabled");
+    learningLink.setAttribute("role", "button");
+    learningLink.setAttribute("aria-haspopup", "dialog");
+    learningLink.setAttribute("aria-controls", "ai-learning-dialog");
+  } else if (learningUrl) {
     learningLink.setAttribute("href", learningUrl);
     learningLink.removeAttribute("aria-disabled");
+    learningLink.setAttribute("role", "link");
+    learningLink.removeAttribute("aria-haspopup");
+    learningLink.removeAttribute("aria-controls");
+  } else {
+    learningLink.setAttribute("role", "link");
+    learningLink.setAttribute("aria-disabled", "true");
+    learningLink.removeAttribute("aria-haspopup");
+    learningLink.removeAttribute("aria-controls");
   }
   const highlightTargets = [...destinations, learningLink];
 
@@ -77,6 +92,7 @@
   let frame = null;
   let lastTime = null;
   let motionTime = 0;
+  let learningOpen = false;
 
   const wantedKey = () => focusedKey ?? hoveredKey ??
     (preference.matches ? null : highlightTargets[automaticIndex]?.dataset.destination) ?? null;
@@ -236,7 +252,7 @@
   };
   const updateMotion = () => {
     const paused = userPaused || preference.matches;
-    const stopped = paused || document.hidden;
+    const stopped = paused || document.hidden || learningOpen;
     document.documentElement.classList.toggle("motion-paused", stopped);
     toggle.setAttribute("aria-pressed", String(paused));
     toggle.disabled = preference.matches;
@@ -269,6 +285,10 @@
   toggle.addEventListener("click", () => { userPaused = !userPaused; updateMotion(); });
   preference.addEventListener("change", updateMotion);
   document.addEventListener("visibilitychange", updateMotion);
+  document.addEventListener("cdsc:learning-visibility", (event) => {
+    learningOpen = event.detail?.open === true;
+    updateMotion();
+  });
   window.addEventListener("resize", measure);
   if (window.ResizeObserver) new window.ResizeObserver(measure).observe(stage);
   document.fonts?.ready.then(measure);

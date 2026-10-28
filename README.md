@@ -18,7 +18,7 @@ Edit public/site-config.js. For each destination, set its URL:
 
     products: { label: "Products", url: "https://example.org/products" }
 
-The four keys are products, team, contact, and learning. Set learning.url to the external page that the central star should open. Empty or invalid URLs show Coming soon on the three chapters, and the star's accessible label and tooltip indicate Coming soon. Valid HTTPS, HTTP, mailto, and tel URLs open in the same tab. The configuration is public.
+The four keys are products, team, contact, and learning. The central star opens the embedded AI Office Quest by default (`learning.mode: "embedded"`). To use an external learning page instead, set `learning.mode: "external"` and supply `learning.url`. Empty or invalid external URLs show Coming soon. Valid HTTPS, HTTP, mailto, and tel URLs open in the same tab. The configuration is public.
 
 Change teamName to update the large heading and page title. Update the fallback title and labels in public/index.html too for visitors without JavaScript. The former headline, introduction, and description settings are no longer used.
 
@@ -41,7 +41,7 @@ The workflow publishes public/. If the default branch differs from main, update 
 
 Push the project, including .gitlab-ci.yml, to the GitLab default branch. With CI runners and Pages enabled, the pipeline publishes public/. Find the URL under Deploy → Pages. The configuration uses current GitLab.com pages.publish syntax; older self-managed versions may require their version's syntax. See [GitLab Pages](https://docs.gitlab.com/user/project/pages/).
 
-The GitLab job runs in the official python:3.11-alpine image. It logs the Python version, checks the published files, and deploys public/ directly. No pip packages, Node.js, or compilation are needed in this image. Python 3.11's built-in HTTP server can also serve public/ for local review using the preview command above.
+The GitLab deployment job runs in the official python:3.11-alpine image. It logs the Python version, checks every static file at root and repository-subpath URLs, and deploys public/ directly. A separate test-stage job uses node:24-alpine for the JavaScript tests. No pip packages, Node.js, or compilation are needed in the Python deployment image. Python 3.11's built-in HTTP server can also serve public/ for local review using the preview command above.
 
 Both hosts use the same files and relative URLs, including when hosted under a repository subpath. There is no backend, build step, or package installation.
 
@@ -49,9 +49,30 @@ Both hosts use the same files and relative URLs, including when hosted under a r
 
     node --check public/app.js
     node --check public/site-config.js
-    node --test tests/site.test.cjs
+    node --test
+    python tests/check_static_site.py
 
-Behavioral checks cover URL activation, four-way highlighting, hover and keyboard focus, connector alignment on desktop and mobile, resizing, pause/resume, hidden tabs, reduced motion, and static assets. Visual browser review is also recommended after layout changes.
+Behavioral checks cover the landing page, all five games, scoring and safety caps, evidence and policy content, lazy loading, modal dismissal, progress recovery, replay and completion. Visual browser review is also needed after layout changes. GitHub Pages deployment waits for the JavaScript tests and the Python 3.11 Alpine static check.
+
+## AI Office Quest
+
+Select the orange star to open a bottom-sheet practice console. All games are available immediately:
+
+1. **Inbox Inferno** — assemble and refine prompts across two email scenarios.
+2. **Delegate or Don’t?** — sort eight workplace tasks by the appropriate level of AI assistance.
+3. **Fix My AI!** — repair two summaries with up to three feedback moves each.
+4. **Hallucination Hunter** — investigate six claims against fictional evidence.
+5. **Data Danger** — redact two fictional documents and choose a safe workflow.
+
+Responses are deterministic simulations, labelled Simulated AI. No external model, account, backend, telemetry, or API key is used. All names and documents are fictional. Data Danger's fictional policies are in `public/learning/content.js`; replace them only with reviewed organisational rules and update the relevant game revision.
+
+The console uses a native modal dialog. Escape, the close button, and intentional backdrop clicks close it; keyboard focus returns to the star. The landing-page circuits pause while the console is open and respect the visitor's previous pause choice when it closes. Phones and short screens get a larger sheet. Reduced-motion preferences remove decorative transitions.
+
+Progress is saved under `cdsc.ai-office-quest.v1` in browser localStorage after meaningful choices. It is specific to the browser and origin and does not sync between devices or between GitHub and GitLab. Private-mode restrictions, corrupted data, and storage failures fall back to an in-memory session. Unsupported saved formats are preserved until the user confirms Reset progress.
+
+Each game has a 0–100 score and up to three stars: 40 earns one, 70 earns two, and 90 earns three. Unresolved critical safety errors cap an attempt at 39. Completion records participation; it does not certify competence. Replays preserve best scores. AI Ready — Practice is earned when all five best scores are at least 70 with no unresolved critical safety errors.
+
+Content and game code are loaded on first opening. New games implement the existing registry contract in `public/learning/core.js` and register a createAttempt/reduce/evaluate/render/hydrate module, with versioned content and tests. Bump the game's revision when incompatible scenario or scoring changes should invalidate old results; other games' progress remains intact.
 
 ## Asset sources
 

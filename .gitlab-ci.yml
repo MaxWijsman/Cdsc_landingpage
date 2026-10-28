@@ -1,11 +1,18 @@
 image: python:3.11-alpine
 
+test-learning:
+  stage: test
+  image: node:24-alpine
+  script:
+    - node --test
+
 deploy-pages:
   stage: deploy
   script:
     - python --version
     - test -s public/index.html
     - test -s public/assets/Logo.png
+    - python tests/check_static_site.py
   pages:
     publish: public
   rules:
