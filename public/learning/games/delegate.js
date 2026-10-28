@@ -5,7 +5,7 @@
   const evaluate = (state) => {
     const card = content.delegation[state.round];
     const correct = state.category === card.answer;
-    return C.grade(correct ? 100 : 0, !correct && !!card.critical, [correct ? "Good delegation judgment. " + card.why : "A better route: " + content.categories.find((item) => item.id === card.answer).label + ". " + card.why]);
+    return C.grade(correct ? 100 : 0, !correct && !!card.critical, [correct ? "Goed ingeschat. " + card.why : "Een betere keuze: " + content.categories.find((item) => item.id === card.answer).label + ". " + card.why]);
   };
   C.register({
     id: "delegate", revision: 1, count: 8,
@@ -27,8 +27,8 @@
     },
     render(state, { view: V, dispatch }) {
       const card = content.delegation[state.round];
-      if (state.phase === "feedback") return { body: V.layout("Where should this task go?", card.task, V.el("div", { className: "q-sort-feedback" }, [V.el("p", {}, "Your choice: " + content.categories.find((item) => item.id === state.category).label), V.feedback(state.evaluation)])), note: "Card " + (state.round + 1) + "/8 · No speed score.", buttons: [V.button("Next task", () => dispatch({ type: "next" }), { primary: true })] };
-      return { body: V.layout("Your work queue", card.task, [V.el("p", {}, card.context), V.choices(content.categories, (id) => dispatch({ type: "classify", id }), undefined, "category")], "Choose help, human authority, or reviewed assistance."), note: "Card " + (state.round + 1) + "/8 · Take the time you need.", buttons: [] };
+      if (state.phase === "feedback") return { body: V.layout("Wie moet deze taak uitvoeren?", card.task, V.el("div", { className: "q-sort-feedback" }, [V.el("p", {}, "Jouw keuze: " + content.categories.find((item) => item.id === state.category).label), V.feedback(state.evaluation)])), note: "Kaart " + (state.round + 1) + "/8 · Snelheid telt niet mee.", buttons: [V.button("Volgende taak", () => dispatch({ type: "next" }), { primary: true })] };
+      return { body: V.layout("Je takenlijst", card.task, [V.el("p", {}, card.context), V.choices(content.categories, (id) => dispatch({ type: "classify", id }), undefined, "category")], "Kies AI-hulp, een menselijke beslissing of AI met menselijke controle."), note: "Kaart " + (state.round + 1) + "/8 · Neem de tijd die je nodig hebt.", buttons: [] };
     },
   });
 })(window.CDSCLearning);

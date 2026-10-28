@@ -10,7 +10,7 @@
       if (answer?.verdict === claim.answer) points += 8;
       if (answer?.evidence === true) points += 2;
     }
-    return C.grade(points / 30 * 100, false, ["Evidence separates a contradiction from a claim that is simply unverified.", scenario.corrected], scenario.corrected);
+    return C.grade(points / 30 * 100, false, ["Met bronnen zie je het verschil tussen een onjuiste uitspraak en een uitspraak die nog niet is gecontroleerd.", scenario.corrected], scenario.corrected);
   };
   C.register({
     id: "hunter", revision: 1, count: 2,
@@ -44,16 +44,16 @@
     },
     render(state, { view: V, dispatch }) {
       const scenario = content.hunter[state.round];
-      if (state.phase === "feedback") return { body: V.layout("An evidence-aligned briefing", "All figures and documents in this game are fictional.", V.feedback(state.evaluation)), note: Math.round(state.evaluation.score) + "/100 · Accuracy + evidence use.", buttons: [V.button("Next briefing", () => dispatch({ type: "next" }), { primary: true })] };
+      if (state.phase === "feedback") return { body: V.layout("Een verslag dat klopt met de bronnen", "Alle cijfers en documenten in dit spel zijn fictief.", V.feedback(state.evaluation)), note: Math.round(state.evaluation.score) + "/100 · Juistheid + gebruik van bronnen.", buttons: [V.button("Volgend verslag", () => dispatch({ type: "next" }), { primary: true })] };
       const claim = scenario.claims[state.selected];
       const answer = state.answers[claim.id];
       const claimList = V.el("div", { className: "q-claims" }, scenario.claims.map((item, index) => V.button((state.answers[item.id] ? "✓ " : "") + item.text, () => dispatch({ type: "claim", index }), { className: "q-choice", pressed: state.selected === index, key: "claim-" + item.id })));
-      const panel = [V.el("h4", {}, claim.text), V.button(state.showEvidence ? "Hide evidence" : "Inspect evidence", () => dispatch({ type: "evidence" }), { key: "evidence" })];
+      const panel = [V.el("h4", {}, claim.text), V.button(state.showEvidence ? "Verberg de bron" : "Bekijk de bron", () => dispatch({ type: "evidence" }), { key: "evidence" })];
       if (state.showEvidence) panel.push(V.el("p", { className: "q-evidence" }, scenario.evidence));
-      if (answer) panel.push(V.el("div", { className: "q-feedback" + (answer.verdict === claim.answer ? "" : " q-caution") }, [V.el("p", {}, (answer.verdict === claim.answer ? "Correct. " : "Reconsider this claim. ") + claim.why)]));
+      if (answer) panel.push(V.el("div", { className: "q-feedback" + (answer.verdict === claim.answer ? "" : " q-caution") }, [V.el("p", {}, (answer.verdict === claim.answer ? "Goed. " : "Bekijk deze uitspraak nog eens. ") + claim.why)]));
       else panel.push(V.choices(content.verdicts, (id) => dispatch({ type: "classify", id }), undefined, "verdict"));
       const nextIndex = scenario.claims.findIndex((item) => !state.answers[item.id]);
-      return { body: V.el("div", { className: "q-layout" }, [V.el("div", {}, [V.el("h3", {}, scenario.title), V.el("p", { className: "q-small" }, "Simulated AI · Select a claim to investigate."), claimList]), V.el("div", { className: "q-panel" }, panel)]), note: Object.keys(state.answers).length + "/3 claims checked · Evidence credit is recorded when you classify.", buttons: nextIndex === -1 ? [V.button("Review briefing", () => dispatch({ type: "check" }), { primary: true })] : answer ? [V.button("Next claim", () => dispatch({ type: "claim", index: nextIndex }), { primary: true })] : [] };
+      return { body: V.el("div", { className: "q-layout" }, [V.el("div", {}, [V.el("h3", {}, scenario.title), V.el("p", { className: "q-small" }, "Gesimuleerde AI · Kies een uitspraak om te onderzoeken."), claimList]), V.el("div", { className: "q-panel" }, panel)]), note: Object.keys(state.answers).length + "/3 uitspraken beoordeeld · Bronpunten tellen mee als je de bron vóór je keuze bekijkt.", buttons: nextIndex === -1 ? [V.button("Bekijk het resultaat", () => dispatch({ type: "check" }), { primary: true })] : answer ? [V.button("Volgende uitspraak", () => dispatch({ type: "claim", index: nextIndex }), { primary: true })] : [] };
     },
   });
 })(window.CDSCLearning);

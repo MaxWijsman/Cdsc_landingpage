@@ -41,10 +41,10 @@
 
   const learningLink = document.getElementById("learning-link");
   const learning = config.destinations?.learning || {};
-  const learningLabel = typeof learning.label === "string" && learning.label.trim() ? learning.label : "AI Learning Track";
+  const learningLabel = typeof learning.label === "string" && learning.label.trim() ? learning.label : "AI-leerpad";
   const learningUrl = safeUrl(learning.url);
   const embedded = learning.mode !== "external";
-  const learningName = learningLabel + (embedded || learningUrl ? "" : " — Coming soon");
+  const learningName = learningLabel + (embedded || learningUrl ? "" : " — Binnenkort beschikbaar");
   learningLink.setAttribute("aria-label", learningName);
   document.getElementById("learning-link-title").textContent = learningName;
   learningLink.querySelector(".star-hint").textContent = learningLabel;
@@ -256,7 +256,7 @@
     document.documentElement.classList.toggle("motion-paused", stopped);
     toggle.setAttribute("aria-pressed", String(paused));
     toggle.disabled = preference.matches;
-    const label = preference.matches ? "Reduced motion" : userPaused ? "Resume motion" : "Pause motion";
+    const label = preference.matches ? "Minder beweging ingeschakeld" : userPaused ? "Hervat animatie" : "Pauzeer animatie";
     toggle.setAttribute("aria-label", label);
     toggle.title = label;
     if (stopped) {

@@ -1,10 +1,10 @@
-/* Add the four external URLs here. Empty URLs display “Coming soon”. */
+/* Vul hier de bestemmingen in. Lege externe URL's tonen ‘Binnenkort beschikbaar’. */
 window.CDSC_CONFIG = {
   teamName: "COMMIT Datascience Cell",
   destinations: {
-    products: { label: "Products", url: "" },
+    products: { label: "Producten", url: "" },
     team: { label: "Team", url: "" },
     contact: { label: "Contact", url: "" },
-    learning: { label: "AI Learning Track", mode: "embedded", url: "" },
+    learning: { label: "AI-leerpad", mode: "embedded", url: "" },
   },
 };

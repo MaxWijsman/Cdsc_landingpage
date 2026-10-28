@@ -15,7 +15,7 @@
   const announce = (message) => { document.getElementById("quest-announcement").textContent = message; };
   const recommended = () => Q.content.order.find((id) => !progress.games[id]?.completed);
   const footerView = (note, buttons) => {
-    footer.replaceChildren(V.el("div", { className: "q-footer-note" }, note + (adapter.temporary() ? " · Progress is available for this visit only." : "")), V.el("div", { className: "q-actions" }, buttons));
+    footer.replaceChildren(V.el("div", { className: "q-footer-note" }, note + (adapter.temporary() ? " · Je voortgang blijft alleen tijdens dit bezoek beschikbaar." : "")), V.el("div", { className: "q-actions" }, buttons));
   };
   const openGame = (id, replay = false) => {
     if (!Q.games[id]) return;
@@ -38,38 +38,38 @@
     const cards = Q.content.order.map((id, index) => {
       const meta = Q.content.meta[id], entry = progress.games[id];
       const card = V.button("", () => openGame(id), { className: "q-game-card" + (id === nextId ? " q-recommended" : ""), key: "game-" + id });
-      card.append(V.el("small", {}, String(index + 1).padStart(2, "0") + " · " + meta.duration), V.el("strong", {}, meta.title), V.el("small", {}, meta.skill), V.el("span", { className: "q-card-score" }, entry?.completed ? V.starsText(entry.bestScore) + " · " + entry.bestScore + "/100" : entry?.checkpoint ? "Resume challenge" : id === nextId ? "Suggested next" : "Ready to play"));
+      card.append(V.el("small", {}, String(index + 1).padStart(2, "0") + " · " + meta.duration), V.el("strong", {}, meta.title), V.el("small", {}, meta.skill), V.el("span", { className: "q-card-score" }, entry?.completed ? V.starsText(entry.bestScore) + " · " + entry.bestScore + "/100" : entry?.checkpoint ? "Ga verder" : id === nextId ? "Aanbevolen volgende spel" : "Klaar om te spelen"));
       return card;
     });
-    const welcome = summary.completed ? "Your next useful AI skill is one small challenge away." : "Practice with simulated AI. Start anywhere; the numbers suggest an order.";
+    const welcome = summary.completed ? "Oefen je volgende AI-vaardigheid met een kort spel." : "Oefen met gesimuleerde AI. Begin waar je wilt; de nummers geven een aanbevolen volgorde aan.";
     const content = V.el("div", {}, [V.el("div", { className: "q-topline" }, [V.circuit(), V.el("p", {}, welcome)]), V.el("div", { className: "q-overview" }, cards)]);
     const last = progress.lastGameId;
     const resumable = last && progress.games[last]?.checkpoint?.phase !== "completed" && progress.games[last]?.checkpoint;
-    const primary = resumable ? V.button("Resume " + Q.content.meta[last].title, () => openGame(last), { primary: true }) : nextId ? V.button("Start " + Q.content.meta[nextId].title, () => openGame(nextId), { primary: true }) : V.button("View track summary", showSummary, { primary: true });
-    return { body: content, note: summary.completed + "/5 complete · " + adapter.status(), buttons: [V.button("Reset progress", () => { screen = "reset"; render(true); }), primary] };
+    const primary = resumable ? V.button("Hervat " + Q.content.meta[last].title, () => openGame(last), { primary: true }) : nextId ? V.button("Start " + Q.content.meta[nextId].title, () => openGame(nextId), { primary: true }) : V.button("Bekijk je leeroverzicht", showSummary, { primary: true });
+    return { body: content, note: summary.completed + "/5 voltooid · " + adapter.status(), buttons: [V.button("Wis voortgang", () => { screen = "reset"; render(true); }), primary] };
   };
   const intro = () => {
     const meta = Q.content.meta[activeId];
     const instructions = {
-      inbox: "Build a prompt from ingredients. Generate, see the consequence, and refine it before keeping your draft.",
-      delegate: "Sort eight workplace tasks. There is no timer: context and human accountability matter more than speed.",
-      repair: "You have three feedback moves per summary. Keep source facts while improving clarity and usefulness.",
-      hunter: "Investigate six claims across two briefings. Compare them with evidence before deciding what is supported.",
-      "data-danger": "Remove unnecessary sensitive details, then choose a permitted workflow. The data and tool rules are fictional training examples.",
+      inbox: "Stel een prompt samen uit onderdelen. Genereer een antwoord, bekijk het resultaat en verbeter je prompt voordat je het concept bewaart.",
+      delegate: "Verdeel acht werktaken. Er is geen tijdslimiet: context en menselijke verantwoordelijkheid zijn belangrijker dan snelheid.",
+      repair: "Je mag per samenvatting drie verbeterinstructies geven. Behoud de feiten uit de bron en maak de tekst duidelijker en bruikbaarder.",
+      hunter: "Onderzoek zes uitspraken in twee verslagen. Vergelijk ze met de bronnen voordat je bepaalt wat onderbouwd is.",
+      "data-danger": "Verwijder onnodige gevoelige gegevens en kies daarna een toegestaan proces. De gegevens en regels zijn fictieve oefenvoorbeelden.",
     };
-    return { body: V.layout(meta.title, instructions[activeId], [V.el("h3", {}, meta.skill), V.el("p", {}, meta.takeaway), V.el("p", { className: "q-small" }, "Simulated AI · " + meta.duration + " · Replay whenever you like.")], "Circuit: experiment, notice the result, and try again."), note: "Your choices stay in this browser.", buttons: [V.button("Start challenge", () => dispatch({ type: "start" }), { primary: true })] };
+    return { body: V.layout(meta.title, instructions[activeId], [V.el("h3", {}, meta.skill), V.el("p", {}, meta.takeaway), V.el("p", { className: "q-small" }, "Gesimuleerde AI · " + meta.duration + " · Speel opnieuw wanneer je wilt.")], "Circuit: probeer iets, bekijk het resultaat en verbeter het."), note: "Je keuzes blijven in deze browser.", buttons: [V.button("Start het spel", () => dispatch({ type: "start" }), { primary: true })] };
   };
   const completion = () => {
     const meta = Q.content.meta[activeId], result = C.result(state), entry = progress.games[activeId];
     const nextId = recommended();
-    const details = [V.el("div", { className: "q-score-big" }, result.score + "/100"), V.el("p", { className: "q-stars", "aria-label": result.stars + " out of three stars" }, V.starsText(result.score)), V.el("p", {}, "Best: " + entry.bestScore + "/100"), V.el("p", { className: "q-small" }, result.critical ? "An unresolved safety issue limited this attempt. Replay to practice a safer approach." : "A completed practice challenge. Keep applying this skill at work.")];
-    return { body: V.layout("Challenge complete", meta.takeaway, details, result.score >= 70 ? "Circuit: that is a skill worth taking into your workday." : "Circuit: every retry is another chance to improve."), note: meta.title + " · " + C.summary(progress).completed + "/5 games completed.", buttons: [V.button("Replay", () => openGame(activeId, true)), V.button(nextId ? "Next: " + Q.content.meta[nextId].title : "Track summary", () => nextId ? openGame(nextId) : showSummary(), { primary: true })] };
+    const details = [V.el("div", { className: "q-score-big" }, result.score + "/100"), V.el("p", { className: "q-stars", "aria-label": result.stars + " van de drie sterren" }, V.starsText(result.score)), V.el("p", {}, "Beste score: " + entry.bestScore + "/100"), V.el("p", { className: "q-small" }, result.critical ? "Een veiligheidsfout beperkt de score van deze poging. Speel opnieuw om een veiligere aanpak te oefenen." : "Je hebt dit oefenspel voltooid. Pas deze vaardigheid ook op het werk toe.")];
+    return { body: V.layout("Spel voltooid", meta.takeaway, details, result.score >= 70 ? "Circuit: deze vaardigheid komt van pas op het werk." : "Circuit: elke nieuwe poging is een kans om te leren."), note: meta.title + " · " + C.summary(progress).completed + "/5 spellen voltooid.", buttons: [V.button("Speel opnieuw", () => openGame(activeId, true)), V.button(nextId ? "Volgende: " + Q.content.meta[nextId].title : "Leeroverzicht", () => nextId ? openGame(nextId) : showSummary(), { primary: true })] };
   };
   const summaryView = () => {
     const summary = C.summary(progress);
     const entries = Q.content.order.map((id) => V.el("div", { className: "q-summary-item" }, Q.content.meta[id].title + ": " + (progress.games[id]?.bestScore ?? "—") + "/100"));
-    const achievements = [V.el("div", { className: "q-score-big" }, summary.score + "/500"), V.el("p", {}, summary.completed + "/5 games · " + summary.stars + "/15 stars · " + summary.percent + "% complete"), ...(summary.badge ? [V.el("span", { className: "q-badge" }, "AI Ready — Practice")] : [])];
-    return { body: V.layout(summary.completed === 5 ? "Your AI workday, upgraded" : "Your practice so far", "Prompt clearly. Keep human judgment. Iterate. Verify claims. Protect information.", [V.el("div", { className: "q-topline" }, [V.circuit("celebrate"), V.el("div", {}, achievements)]), V.el("div", { className: "q-summary-list" }, entries)]), note: "Personal practice results · " + adapter.status(), buttons: [V.button("Choose a game", showOverview), V.button("Return to work", () => Q.launcher.close(), { primary: true })] };
+    const achievements = [V.el("div", { className: "q-score-big" }, summary.score + "/500"), V.el("p", {}, summary.completed + "/5 spellen · " + summary.stars + "/15 sterren · " + summary.percent + "% voltooid"), ...(summary.badge ? [V.el("span", { className: "q-badge" }, "AI-vaardig — Oefenbadge")] : [])];
+    return { body: V.layout(summary.completed === 5 ? "Je AI-vaardigheden in beeld" : "Je voortgang tot nu toe", "Geef duidelijke instructies. Houd zelf de regie. Verbeter concepten. Controleer uitspraken. Bescherm informatie.", [V.el("div", { className: "q-topline" }, [V.circuit("celebrate"), V.el("div", {}, achievements)]), V.el("div", { className: "q-summary-list" }, entries)]), note: "Persoonlijke oefenresultaten · " + adapter.status(), buttons: [V.button("Kies een spel", showOverview), V.button("Sluiten", () => Q.launcher.close(), { primary: true })] };
   };
   const render = (focus = false) => {
     if (!initialized) return;
@@ -77,17 +77,17 @@
     const summary = C.summary(progress);
     document.getElementById("quest-score").textContent = summary.completed + "/5 · " + summary.stars + "★";
     home.hidden = screen === "overview";
-    document.getElementById("quest-subtitle").textContent = screen === "game" && activeId ? Q.content.meta[activeId].title + " · " + (state.round + 1) + "/" + Q.games[activeId].count : screen === "summary" ? "Your learning summary" : "Five small challenges · about 12–15 minutes";
+    document.getElementById("quest-subtitle").textContent = screen === "game" && activeId ? Q.content.meta[activeId].title + " · " + (state.round + 1) + "/" + Q.games[activeId].count : screen === "summary" ? "Je leeroverzicht" : "Vijf korte spellen · ongeveer 12–15 minuten";
     let view;
     try {
-      if (screen === "reset") view = { body: V.layout("Reset all practice progress?", "This clears only AI Office Quest progress in this browser. It cannot be undone.", V.el("p", {}, "You can replay an individual game without clearing its best score.")), note: "Your landing-page preferences will be kept.", buttons: [V.button("Keep progress", () => { screen = "overview"; render(true); }, { primary: true }), V.button("Reset all progress", () => { progress = adapter.reset(); activeId = null; state = null; screen = "overview"; render(true); announce("Practice progress reset."); })] };
+      if (screen === "reset") view = { body: V.layout("Alle oefenvoortgang wissen?", "Dit wist alleen de voortgang van het AI Werkplekavontuur in deze browser. Je kunt dit niet ongedaan maken.", V.el("p", {}, "Je kunt een spel opnieuw spelen zonder je beste score te wissen.")), note: "Je voorkeuren voor de startpagina blijven behouden.", buttons: [V.button("Bewaar voortgang", () => { screen = "overview"; render(true); }, { primary: true }), V.button("Wis alle voortgang", () => { progress = adapter.reset(); activeId = null; state = null; screen = "overview"; render(true); announce("Je oefenvoortgang is gewist."); })] };
       else if (screen === "summary") view = summaryView();
       else if (screen === "overview") view = overview();
       else if (state.phase === "intro") view = intro();
       else if (state.phase === "completed") view = completion();
       else view = Q.games[activeId].render(state, { view: V, dispatch });
     } catch {
-      view = { body: V.el("p", {}, "This challenge could not be displayed. Your saved progress is still available."), note: "Choose another game or start a fresh attempt.", buttons: [V.button("Choose a game", showOverview), V.button("Restart this game", () => openGame(activeId, true), { primary: true })] };
+      view = { body: V.el("p", {}, "Dit spel kan niet worden weergegeven. Je opgeslagen voortgang is nog beschikbaar."), note: "Kies een ander spel of begin een nieuwe poging.", buttons: [V.button("Kies een spel", showOverview), V.button("Begin dit spel opnieuw", () => openGame(activeId, true), { primary: true })] };
     }
     body.replaceChildren(view.body);
     footerView(view.note || "", view.buttons || []);
@@ -107,8 +107,8 @@
       state = next;
       save();
       render(true);
-      if (state.phase === "feedback") announce("Result: " + Math.round(state.evaluation.score) + " out of 100. " + state.evaluation.feedback[0]);
-      else if (state.phase === "completed") announce("Challenge complete. " + C.result(state).score + " out of 100.");
+      if (state.phase === "feedback") announce("Resultaat: " + Math.round(state.evaluation.score) + " van de 100. " + state.evaluation.feedback[0]);
+      else if (state.phase === "completed") announce("Spel voltooid. " + C.result(state).score + " van de 100.");
       else if (action.type === "apply") announce(Q.content.repairActions.find((item) => item.id === action.id).why);
       else if (action.type === "classify" && activeId === "hunter") {
         const claim = Q.content.hunter[state.round].claims[state.selected];

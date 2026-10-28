@@ -87,7 +87,7 @@ function setup({ reduced = false, mobile = false, mutateConfig } = {}) {
     node.className = "destination";
     const label = new Element("strong", key);
     label.selector = "[data-label]";
-    const status = new Element("small", "Coming soon");
+    const status = new Element("small", "Binnenkort beschikbaar");
     status.selector = "[data-status]";
     node.append(label);
     node.append(status);
@@ -142,12 +142,12 @@ test("three unconfigured chapters stay inactive while the learning star opens an
   assert.equal(page.destinations.length, 3);
   page.placeholders.forEach(node => {
     assert.equal(node.replacement, undefined);
-    assert.equal(node.querySelector("[data-status]").textContent, "Coming soon");
+    assert.equal(node.querySelector("[data-status]").textContent, "Binnenkort beschikbaar");
   });
   assert.equal(page.document.title, "COMMIT Datascience Cell");
   assert.equal(page.nodes.get("[data-name-rest]")[0].textContent, "Datascience Cell");
   assert.equal(page.learningLink.getAttribute("href"), undefined);
-  assert.equal(page.learningLink.getAttribute("aria-label"), "AI Learning Track");
+  assert.equal(page.learningLink.getAttribute("aria-label"), "AI-leerpad");
   assert.equal(page.learningLink.getAttribute("role"), "button");
   assert.equal(page.learningLink.getAttribute("aria-haspopup"), "dialog");
   assert.equal(page.learningLink.getAttribute("aria-disabled"), undefined);
@@ -174,7 +174,7 @@ test("the central SVG star opens the configured learning URL as an accessible sa
   const page = setup({ mutateConfig(config) { config.destinations.learning.mode = "external"; config.destinations.learning.url = "https://example.org/learn"; } });
   assert.equal(page.learningLink.getAttribute("href"), "https://example.org/learn");
   assert.equal(page.learningLink.getAttribute("aria-disabled"), undefined);
-  assert.equal(page.learningLink.getAttribute("aria-label"), "AI Learning Track");
+  assert.equal(page.learningLink.getAttribute("aria-label"), "AI-leerpad");
   assert.equal(page.learningLink.getAttribute("target"), undefined);
   page.learningLink.listeners.focus();
   assert.ok(page.learningLink.classes.has("is-highlighted"));
@@ -358,8 +358,8 @@ test("pause, hidden tabs, and reduced motion stop continuous motion", () => {
   page.toggle.listeners.click();
   assert.equal(page.callbacks.size, 0);
   assert.equal(page.toggle.getAttribute("aria-pressed"), "true");
-  assert.equal(page.toggle.getAttribute("aria-label"), "Resume motion");
-  assert.equal(page.toggle.title, "Resume motion");
+  assert.equal(page.toggle.getAttribute("aria-label"), "Hervat animatie");
+  assert.equal(page.toggle.title, "Hervat animatie");
   assert.equal(page.toggle.children.length, 0);
   assert.ok(page.document.documentElement.classes.has("motion-paused"));
   page.toggle.listeners.click();
@@ -390,12 +390,13 @@ test("opening the learning dialog suspends circuits without overwriting the user
   visibility({ detail: { open: true } });
   visibility({ detail: { open: false } });
   assert.equal(page.callbacks.size, 0);
-  assert.equal(page.toggle.getAttribute("aria-label"), "Resume motion");
+  assert.equal(page.toggle.getAttribute("aria-label"), "Hervat animatie");
 });
 
 test("static fallback has the logo, title, four destinations, local fonts, and no marketing copy", () => {
   const html = fs.readFileSync(path.join(root, "public/index.html"), "utf8");
   assert.match(html, /data-name-first>COMMIT/);
+  assert.match(html, /<html lang="nl">/);
   assert.match(html, /data-name-rest>Datascience Cell/);
   assert.equal((html.match(/data-destination="/g) || []).length, 4);
   assert.equal((html.match(/data-route="/g) || []).length, 3);

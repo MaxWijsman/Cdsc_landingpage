@@ -2,7 +2,8 @@
   "use strict";
   const C = Q.core, content = Q.content;
   const reset = () => ({ redacted: [], workflow: null, screen: "redact", evaluation: null });
-  const policyText = () => content.workflows.filter((tool) => tool.id !== "decline").map((tool) => tool.label + ": " + ((content.policy.allowed[tool.id] || []).join(" + ") || "no information classes") + " only.").join(" ") + " All other information classes are prohibited.";
+  const classLabel = (id) => content.classLabels[id] || "onbekende informatieklasse";
+  const policyText = () => content.workflows.filter((tool) => tool.id !== "decline").map((tool) => tool.label + ": " + ((content.policy.allowed[tool.id] || []).map(classLabel).join(" + ") || "geen informatieklassen") + " toegestaan.").join(" ") + " Alle andere informatieklassen zijn verboden.";
   const evaluate = (state) => {
     const scenario = content.danger[state.round];
     const required = scenario.segments.filter((span) => span.remove);
@@ -14,15 +15,15 @@
     const critical = state.workflow !== "decline" && (!permitted.includes(scenario.classification) || remaining.some((span) => !permitted.includes(span.dataClass)));
     const workflowPoints = critical ? 0 : state.workflow === scenario.preferred ? 50 : state.workflow === "decline" ? 35 : 0;
     const feedback = [];
-    if (correct < required.length) feedback.push("Find the remaining personal identifiers or credential. These details are not needed for the task.");
-    if (falsePositives) feedback.push("Keep useful non-sensitive facts. Removing everything does not make a useful summary.");
+    if (correct < required.length) feedback.push("Zoek de overgebleven persoonsgegevens of toegangscode. Deze gegevens zijn niet nodig voor de taak.");
+    if (falsePositives) feedback.push("Behoud bruikbare, niet-gevoelige feiten. Alles verwijderen levert geen bruikbare samenvatting op.");
     if (critical) {
       const exposed = [...new Set([scenario.classification, ...remaining.map((span) => span.dataClass)].filter((dataClass) => !permitted.includes(dataClass)))];
-      feedback.push("Do not submit. This fictional tool prohibits the remaining information classes: " + exposed.join(", ") + ".");
+      feedback.push("Niet versturen. Dit fictieve hulpmiddel staat de volgende overgebleven informatieklassen niet toe: " + exposed.map(classLabel).join(", ") + ".");
     }
-    else if (state.workflow === "decline" && scenario.preferred !== "decline") feedback.push("Not submitting is safe. The approved enterprise route would also help complete this task after minimization.");
-    else feedback.push(scenario.classification === "restricted" ? "Correct: redaction does not remove the document's restriction. Use the approved non-AI process." : "The necessary internal facts can go to the fictional approved enterprise tool after personal details are removed.");
-    return C.grade(minimization + workflowPoints, critical, feedback, remaining.map((span) => span.text).join(" ") || "[All document content removed]");
+    else if (state.workflow === "decline" && scenario.preferred !== "decline") feedback.push("Niet versturen is veilig. Na het verwijderen van onnodige gegevens kun je deze taak ook uitvoeren met de goedgekeurde zakelijke assistent.");
+    else feedback.push(scenario.classification === "restricted" ? "Goed: weglakken verandert de toegangsbeperking van het document niet. Gebruik het goedgekeurde proces zonder AI." : "Na het verwijderen van persoonsgegevens mogen de noodzakelijke interne feiten naar de fictieve goedgekeurde zakelijke assistent.");
+    return C.grade(minimization + workflowPoints, critical, feedback, remaining.map((span) => span.text).join(" ") || "[Alle documentinhoud verwijderd]");
   };
   C.register({
     id: "data-danger", revision: 1, count: 2,
@@ -51,13 +52,13 @@
     },
     render(state, { view: V, dispatch }) {
       const scenario = content.danger[state.round];
-      if (state.phase === "feedback") return { body: V.el("div", { className: "q-layout" }, [V.feedback(state.evaluation), V.output(state.evaluation.output, "Revised training prompt")]), note: Math.round(state.evaluation.score) + "/100 · " + content.policy.label, buttons: [V.button("Retry round", () => dispatch({ type: "retry" })), V.button("Continue", () => dispatch({ type: "next" }), { primary: true })] };
+      if (state.phase === "feedback") return { body: V.el("div", { className: "q-layout" }, [V.feedback(state.evaluation), V.output(state.evaluation.output, "Aangepaste oefenprompt")]), note: Math.round(state.evaluation.score) + "/100 · " + content.policy.label, buttons: [V.button("Probeer deze ronde opnieuw", () => dispatch({ type: "retry" })), V.button("Verder", () => dispatch({ type: "next" }), { primary: true })] };
       if (state.screen === "workflow") {
-        const preview = scenario.segments.filter((span) => !state.redacted.includes(span.id)).map((span) => span.text).join(" ") || "[All content removed]";
-        return { body: V.layout("Choose a safe workflow", preview, [V.el("p", { className: "q-small" }, policyText()), V.choices(content.workflows, (id) => dispatch({ type: "workflow", id }), state.workflow, "workflow")]), note: content.policy.label, buttons: [V.button("Edit redactions", () => dispatch({ type: "screen", id: "redact" })), V.button("Check safety", () => dispatch({ type: "check" }), { primary: true, disabled: !state.workflow })] };
+        const preview = scenario.segments.filter((span) => !state.redacted.includes(span.id)).map((span) => span.text).join(" ") || "[Alle inhoud verwijderd]";
+        return { body: V.layout("Kies een veilig proces", preview, [V.el("p", { className: "q-small" }, policyText()), V.choices(content.workflows, (id) => dispatch({ type: "workflow", id }), state.workflow, "workflow")]), note: content.policy.label, buttons: [V.button("Pas het weglakken aan", () => dispatch({ type: "screen", id: "redact" })), V.button("Controleer de veiligheid", () => dispatch({ type: "check" }), { primary: true, disabled: !state.workflow })] };
       }
-      const spans = V.el("div", { className: "q-spans", role: "group", "aria-label": "Select information to redact" }, scenario.segments.map((span) => V.button(span.text, () => dispatch({ type: "redact", id: span.id }), { className: "q-choice q-span", pressed: state.redacted.includes(span.id), key: "span-" + span.id })));
-      return { body: V.layout(scenario.title, scenario.brief, [V.el("h4", {}, "Select details to remove"), spans, V.el("p", { className: "q-policy" }, "Fictional data · Document class: " + scenario.classification)], "The right tool and permissions matter as much as redaction."), note: content.policy.label, buttons: [V.button("Choose workflow", () => dispatch({ type: "screen", id: "workflow" }), { primary: true })] };
+      const spans = V.el("div", { className: "q-spans", role: "group", "aria-label": "Selecteer informatie om weg te lakken" }, scenario.segments.map((span) => V.button(span.text, () => dispatch({ type: "redact", id: span.id }), { className: "q-choice q-span", pressed: state.redacted.includes(span.id), key: "span-" + span.id })));
+      return { body: V.layout(scenario.title, scenario.brief, [V.el("h4", {}, "Kies welke gegevens je verwijdert"), spans, V.el("p", { className: "q-policy" }, "Fictieve gegevens · Documentklasse: " + classLabel(scenario.classification))], "Het juiste hulpmiddel en de juiste toestemming zijn net zo belangrijk als weglakken."), note: content.policy.label, buttons: [V.button("Kies een proces", () => dispatch({ type: "screen", id: "workflow" }), { primary: true })] };
     },
   });
 })(window.CDSCLearning);

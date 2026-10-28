@@ -24,7 +24,7 @@ test("star activation opens the shell immediately, lazy-loads once, and restores
   assert.equal(env.document.body.style.overflow, "hidden");
   assert.equal(env.document.activeElement, env.ids.get("quest-title"));
   await env.flush();
-  assert.match(env.ids.get("quest-body").textContent, /Inbox Inferno/);
+  assert.match(env.ids.get("quest-body").textContent, /Inbox in brand/);
   assert.equal(env.requestedScripts.length, 10);
   assert.equal(env.document.events[0].detail.open, true);
   env.ids.get("quest-close").click();
@@ -45,11 +45,11 @@ test("closing during lazy loading does not reopen the sheet, and failed scripts 
   await env.flush();
   assert.equal(env.dialog.open, false);
   env.trigger.click(); await env.flush();
-  assert.match(env.ids.get("quest-body").textContent, /could not load/);
+  assert.match(env.ids.get("quest-body").textContent, /kan niet worden geladen/);
   failing = false;
   env.ids.get("quest-body").querySelector("button").click();
   await env.flush();
-  assert.match(env.ids.get("quest-body").textContent, /Inbox Inferno/);
+  assert.match(env.ids.get("quest-body").textContent, /Inbox in brand/);
 });
 
 test("Escape and intentional backdrop clicks close; clicks inside the panel do not", async () => {
@@ -81,19 +81,24 @@ test("external mode binds no modal trigger and keyboard focus wraps inside the d
 test("Inbox vertical slice persists after an actual UI choice and resumes in a fresh page", () => {
   const storage = memoryStorage(), env = environment({ storage });
   env.Q.controller.init(); env.dialog.showModal(); env.Q.controller.onOpen();
-  const card = env.ids.get("quest-body").querySelectorAll("button").find(button => button.textContent.includes("Inbox Inferno"));
-  card.click(); env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Start challenge").click();
-  const ingredient = env.ids.get("quest-body").querySelectorAll("button").find(button => button.textContent.includes("Decline the requested"));
+  const card = env.ids.get("quest-body").querySelectorAll("button").find(button => button.textContent.includes("Inbox in brand"));
+  card.click(); env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Start het spel").click();
+  const ingredient = env.ids.get("quest-body").querySelectorAll("button").find(button => button.textContent.includes("Wijs het verzoek"));
   ingredient.click();
-  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Generate").click();
+  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Genereer").click();
   assert.equal(env.Q.controller.getAttempt().phase, "feedback");
-  assert.match(env.ids.get("quest-body").textContent, /Simulated AI/);
+  assert.match(env.ids.get("quest-body").textContent, /Gesimuleerde AI/);
   env.Q.controller.save();
+  const legacy = JSON.parse(storage.getItem(env.Q.progress.key));
+  legacy.games.inbox.checkpoint.evaluation.output = "Old English draft";
+  storage.setItem(env.Q.progress.key, JSON.stringify(legacy));
   const reopened = environment({ storage }); reopened.Q.controller.init(); reopened.dialog.showModal(); reopened.Q.controller.onOpen();
-  assert.match(reopened.ids.get("quest-footer").textContent, /Resume Inbox Inferno/);
+  assert.match(reopened.ids.get("quest-footer").textContent, /Hervat Inbox in brand/);
   reopened.Q.controller.openGame("inbox");
   assert.equal(reopened.Q.controller.getAttempt().choices.task, "task-good");
   assert.equal(reopened.Q.controller.getAttempt().phase, "feedback");
+  assert.match(reopened.ids.get("quest-body").textContent, /Bedankt voor uw verzoek/);
+  assert.doesNotMatch(reopened.ids.get("quest-body").textContent, /Old English draft/);
 });
 
 test("all games render, complete in any order, retain best scores on replay, and produce the final badge", () => {
@@ -102,11 +107,11 @@ test("all games render, complete in any order, retain best scores on replay, and
     play(env.Q.controller, env.Q, id);
     assert.equal(env.Q.controller.getAttempt().phase, "completed");
     assert.equal(env.Q.controller.getProgress().games[id].bestScore, 100);
-    assert.match(env.ids.get("quest-body").textContent, /Challenge complete/);
+    assert.match(env.ids.get("quest-body").textContent, /Spel voltooid/);
   }
   env.Q.controller.showSummary();
   assert.match(env.ids.get("quest-body").textContent, /500\/500/);
-  assert.match(env.ids.get("quest-body").textContent, /AI Ready — Practice/);
+  assert.match(env.ids.get("quest-body").textContent, /AI-vaardig — Oefenbadge/);
   env.Q.controller.openGame("inbox", true);
   assert.equal(env.Q.controller.getAttempt().phase, "intro");
   assert.equal(env.Q.controller.getProgress().games.inbox.bestScore, 100);
@@ -115,12 +120,12 @@ test("all games render, complete in any order, retain best scores on replay, and
 test("reset confirmation keeps other local storage keys and cancellation preserves learning progress", () => {
   const storage = memoryStorage({ unrelated: "keep-me" }), env = environment({ storage });
   env.Q.controller.init(); env.dialog.showModal(); play(env.Q.controller, env.Q, "delegate"); env.Q.controller.showOverview();
-  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Reset progress").click();
-  assert.match(env.ids.get("quest-body").textContent, /Reset all practice progress/);
-  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Keep progress").click();
+  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Wis voortgang").click();
+  assert.match(env.ids.get("quest-body").textContent, /Alle oefenvoortgang wissen/);
+  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Bewaar voortgang").click();
   assert.equal(env.Q.controller.getProgress().games.delegate.completed, true);
-  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Reset progress").click();
-  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Reset all progress").click();
+  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Wis voortgang").click();
+  env.ids.get("quest-footer").querySelectorAll("button").find(button => button.textContent === "Wis alle voortgang").click();
   assert.equal(Object.keys(env.Q.controller.getProgress().games).length, 0);
   assert.equal(storage.getItem("unrelated"), "keep-me");
 });
@@ -132,5 +137,5 @@ test("scenario text is rendered as text, and private-mode storage failures do no
   env.Q.controller.init(); env.dialog.showModal(); env.Q.controller.openGame("inbox"); env.Q.controller.dispatch({ type: "start" });
   assert.match(env.ids.get("quest-body").textContent, /<img src=x/);
   assert.equal(env.ids.get("quest-body").querySelector("img"), null);
-  assert.match(env.ids.get("quest-footer").textContent, /visit only/);
+  assert.match(env.ids.get("quest-footer").textContent, /alleen tijdens dit bezoek/);
 });

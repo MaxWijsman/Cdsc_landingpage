@@ -11,19 +11,19 @@
     const suitability = good("task") && good("tone") && good("constraints") && !critical ? 10 : 0;
     const score = content.slots.reduce((sum, slot) => sum + (good(slot) ? weights[slot] : 0), suitability);
     const missing = content.slots.filter((slot) => !good(slot));
-    const feedback = critical ? ["The draft makes an unauthorized promise or invents a policy. Replace that instruction before using it."] : [];
-    if (missing.length) feedback.push("Strengthen: " + missing.join(", ") + ". Clear, relevant instructions matter more than extra words.");
-    if (good("constraints")) feedback.push("Your constraints prevent unsupported commitments.");
-    if (!missing.length) feedback.push("The prompt states a clear task, audience, context, tone, limits and usable format.");
+    const feedback = critical ? ["Het concept bevat een onbevoegde toezegging of een verzonnen regel. Vervang die instructie voordat je de tekst gebruikt."] : [];
+    if (missing.length) feedback.push("Verbeter: " + missing.map((slot) => content.slotLabels[slot].toLowerCase()).join(", ") + ". Duidelijke, relevante instructies helpen meer dan extra woorden.");
+    if (good("constraints")) feedback.push("Je grenzen voorkomen ongefundeerde toezeggingen.");
+    if (!missing.length) feedback.push("De prompt bevat een duidelijke taak, doelgroep, context, toon, grenzen en een bruikbare antwoordvorm.");
     const lines = [];
-    if (good("format")) lines.push("Subject: " + scenario.subject, "");
-    lines.push(good("audience") ? scenario.greeting : "Hello,", "");
-    if (chosen.tone?.id === "tone-weak") lines.push("Your request is not acceptable.");
-    lines.push(chosen.task?.quality === "unsafe" ? scenario.unsafe : good("task") ? scenario.goodBody : "Thank you for your message. We will consider your request.");
+    if (good("format")) lines.push("Onderwerp: " + scenario.subject, "");
+    lines.push(good("audience") ? scenario.greeting : "Hallo,", "");
+    if (chosen.tone?.id === "tone-weak") lines.push("Uw verzoek is niet acceptabel.");
+    lines.push(chosen.task?.quality === "unsafe" ? scenario.unsafe : good("task") ? scenario.goodBody : "Bedankt voor uw bericht. We zullen uw verzoek bekijken.");
     if (chosen.constraints?.quality === "unsafe") lines.push(scenario.invented);
     if (good("context")) lines.push(scenario.positive);
-    if (!good("constraints") && !critical) lines.push("Please confirm which commitments are authorized before sending this draft.");
-    if (!good("format")) lines.push("There are a number of additional considerations and possible further discussions that could be explored in more detail.");
+    if (!good("constraints") && !critical) lines.push("Controleer welke toezeggingen zijn toegestaan voordat u dit concept verstuurt.");
+    if (!good("format")) lines.push("Er zijn nog diverse aanvullende overwegingen en mogelijke vervolggesprekken die we verder zouden kunnen uitwerken.");
     return { ...C.grade(score, critical, feedback, lines.join("\n")), firstScore: state.firstScore };
   };
   const game = {
@@ -62,13 +62,13 @@
     render(state, { view: V, dispatch }) {
       const scenario = content.inbox[state.round];
       if (state.phase === "feedback") return {
-        body: V.el("div", { className: "q-layout" }, [V.el("div", {}, [V.el("h3", {}, "See what changed"), V.feedback(state.evaluation)]), V.output(state.evaluation.output)]),
-        note: "First: " + Math.round(state.firstScore) + " · Current: " + Math.round(state.evaluation.score) + "/100",
-        buttons: [V.button("Refine prompt", () => dispatch({ type: "retry" })), V.button("Keep this draft", () => dispatch({ type: "next" }), { primary: true })],
+        body: V.el("div", { className: "q-layout" }, [V.el("div", {}, [V.el("h3", {}, "Bekijk het resultaat"), V.feedback(state.evaluation)]), V.output(state.evaluation.output)]),
+        note: "Eerste score: " + Math.round(state.firstScore) + " · Nu: " + Math.round(state.evaluation.score) + "/100",
+        buttons: [V.button("Verbeter de prompt", () => dispatch({ type: "retry" })), V.button("Bewaar dit concept", () => dispatch({ type: "next" }), { primary: true })],
       };
-      const tabs = V.el("div", { className: "q-tabs", role: "group", "aria-label": "Prompt ingredients" }, content.slots.map((slot) => V.button((state.choices[slot] ? "✓ " : "") + slot.charAt(0).toUpperCase() + slot.slice(1), () => dispatch({ type: "slot", id: slot }), { className: "q-choice", key: "slot-" + slot, pressed: state.slot === slot })));
-      const panel = [tabs, V.el("h4", {}, "Choose your " + state.slot), V.choices(scenario.ingredients[state.slot], (id) => dispatch({ type: "choose", id }), state.choices[state.slot], "ingredient")];
-      return { body: V.layout(scenario.title, scenario.brief, panel, "Build a prompt, test it, then improve it."), note: Object.keys(state.choices).length + "/6 ingredients · Generate at any point.", buttons: [V.button("Generate", () => dispatch({ type: "generate" }), { primary: true, disabled: !Object.keys(state.choices).length })] };
+      const tabs = V.el("div", { className: "q-tabs", role: "group", "aria-label": "Onderdelen van de prompt" }, content.slots.map((slot) => V.button((state.choices[slot] ? "✓ " : "") + content.slotLabels[slot], () => dispatch({ type: "slot", id: slot }), { className: "q-choice", key: "slot-" + slot, pressed: state.slot === slot })));
+      const panel = [tabs, V.el("h4", {}, "Onderdeel: " + content.slotLabels[state.slot].toLowerCase()), V.choices(scenario.ingredients[state.slot], (id) => dispatch({ type: "choose", id }), state.choices[state.slot], "ingredient")];
+      return { body: V.layout(scenario.title, scenario.brief, panel, "Maak een prompt, probeer hem uit en verbeter hem."), note: Object.keys(state.choices).length + "/6 onderdelen · Je kunt al een antwoord genereren.", buttons: [V.button("Genereer", () => dispatch({ type: "generate" }), { primary: true, disabled: !Object.keys(state.choices).length })] };
     },
   };
   C.register(game);

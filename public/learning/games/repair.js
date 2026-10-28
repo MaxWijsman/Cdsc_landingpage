@@ -19,12 +19,12 @@
     const flags = quality(state.actions);
     if (!state.actions.length) return scenario.original;
     const lines = [];
-    if (flags.audience) lines.push("Management update");
-    if (flags.next) lines.push((flags.structured ? "• Recommendation: " : "Recommended next step: ") + scenario.next);
+    if (flags.audience) lines.push("Update voor het management");
+    if (flags.next) lines.push((flags.structured ? "• Advies: " : "Voorgestelde volgende stap: ") + scenario.next);
     lines.push((flags.structured ? "• " : "") + scenario.facts);
-    if (flags.risks) lines.push((flags.structured ? "• Risk: " : "Risk: ") + scenario.risk);
-    if (!flags.concise) lines.push("There are numerous related considerations and discussions which may require further attention in a variety of ways.");
-    if (!flags.accuracy) lines.push("An impressive 92% productivity increase is expected. [Not supported by the source]");
+    if (flags.risks) lines.push((flags.structured ? "• Risico: " : "Risico: ") + scenario.risk);
+    if (!flags.concise) lines.push("Er zijn allerlei samenhangende overwegingen en gesprekken die op verschillende manieren meer aandacht kunnen vragen.");
+    if (!flags.accuracy) lines.push("Er wordt een indrukwekkende productiviteitsstijging van 92% verwacht. [Niet onderbouwd door de bron]");
     return lines.join("\n");
   };
   const evaluate = (state) => {
@@ -32,7 +32,7 @@
     const weights = { accuracy: 25, concise: 15, structured: 15, risks: 15, audience: 15, next: 15 };
     const score = Object.entries(weights).reduce((sum, [key, value]) => sum + (flags[key] ? value : 0), 0);
     const missing = Object.keys(flags).filter((key) => !flags[key]);
-    return C.grade(score, !flags.accuracy, missing.length ? ["Still improve: " + missing.join(", ") + ".", !flags.accuracy ? "Remove the unsupported statistic. Editing does not create evidence." : "Useful feedback changes the draft without inventing facts."] : ["Three specific instructions made the summary concise, factual and actionable."], draft(state));
+    return C.grade(score, !flags.accuracy, missing.length ? ["Nog verbeteren: " + missing.map((key) => content.qualityLabels[key]).join(", ") + ".", !flags.accuracy ? "Verwijder het niet-onderbouwde cijfer. Herschrijven levert geen bewijs op." : "Bruikbare feedback verbetert het concept zonder feiten te verzinnen."] : ["Drie gerichte instructies maakten de samenvatting bondig, feitelijk en concreet."], draft(state));
   };
   C.register({
     id: "repair", revision: 1, count: 2, quality,
@@ -58,15 +58,15 @@
     },
     render(state, { view: V, dispatch }) {
       const scenario = content.repair[state.round];
-      if (state.phase === "feedback") return { body: V.el("div", { className: "q-layout" }, [V.feedback(state.evaluation), V.output(state.evaluation.output)]), note: Math.round(state.evaluation.score) + "/100 · Three turns, specific feedback.", buttons: [V.button("Retry round", () => dispatch({ type: "retry" })), V.button("Keep repair", () => dispatch({ type: "next" }), { primary: true })] };
-      if (state.screen === "actions") return { body: V.layout("Give specific feedback", scenario.goal, V.choices(content.repairActions.map((item) => ({ ...item, disabled: state.actions.includes(item.id) })), (id) => dispatch({ type: "apply", id }), undefined, "repair", 2), "Each feedback instruction uses one of three turns."), note: (3 - state.actions.length) + " moves left.", buttons: [V.button("Back to draft", () => dispatch({ type: "screen", id: "draft" }))] };
+      if (state.phase === "feedback") return { body: V.el("div", { className: "q-layout" }, [V.feedback(state.evaluation), V.output(state.evaluation.output)]), note: Math.round(state.evaluation.score) + "/100 · Drie beurten, gerichte feedback.", buttons: [V.button("Probeer deze ronde opnieuw", () => dispatch({ type: "retry" })), V.button("Bewaar de verbetering", () => dispatch({ type: "next" }), { primary: true })] };
+      if (state.screen === "actions") return { body: V.layout("Geef gerichte feedback", scenario.goal, V.choices(content.repairActions.map((item) => ({ ...item, disabled: state.actions.includes(item.id) })), (id) => dispatch({ type: "apply", id }), undefined, "repair", 2), "Elke verbeterinstructie kost één van je drie beurten."), note: (3 - state.actions.length) + " beurten over.", buttons: [V.button("Terug naar het concept", () => dispatch({ type: "screen", id: "draft" }))] };
       const flags = quality(state.actions);
-      const metrics = V.el("div", { className: "q-metrics" }, Object.entries(flags).map(([key, value]) => V.el("span", { className: "q-metric" + (value ? " is-good" : "") }, (value ? "✓ " : "○ ") + key)));
+      const metrics = V.el("div", { className: "q-metrics" }, Object.entries(flags).map(([key, value]) => V.el("span", { className: "q-metric" + (value ? " is-good" : "") }, (value ? "✓ " : "○ ") + content.qualityLabels[key])));
       const previousLines = draft({ ...state, actions: state.actions.slice(0, -1) }).split("\n");
       const passages = draft(state).split("\n").flatMap((line, index) => [index ? "\n" : "", state.actions.length && !previousLines.includes(line) ? V.el("mark", { className: "q-changed" }, line) : line]);
       const panel = [V.output(state.original ? scenario.original : passages), metrics];
       const last = state.actions.at(-1);
-      return { body: V.layout(scenario.title, scenario.source, panel, last ? content.repairActions.find((item) => item.id === last).why : "The first response is a draft. Improve what matters."), note: (3 - state.actions.length) + " moves left · Source facts are your boundary.", buttons: [V.button(state.original ? "Current draft" : "Original", () => dispatch({ type: "original" })), V.button("Finish repair", () => dispatch({ type: "finish" }), { primary: state.actions.length === 3 }), ...(state.actions.length < 3 ? [V.button("Give feedback", () => dispatch({ type: "screen", id: "actions" }), { primary: true })] : [])] };
+      return { body: V.layout(scenario.title, scenario.source, panel, last ? content.repairActions.find((item) => item.id === last).why : "Het eerste antwoord is een concept. Verbeter wat belangrijk is."), note: (3 - state.actions.length) + " beurten over · Houd je aan de feiten uit de bron.", buttons: [V.button(state.original ? "Huidig concept" : "Origineel", () => dispatch({ type: "original" })), V.button("Rond de verbetering af", () => dispatch({ type: "finish" }), { primary: state.actions.length === 3 }), ...(state.actions.length < 3 ? [V.button("Geef feedback", () => dispatch({ type: "screen", id: "actions" }), { primary: true })] : [])] };
     },
   });
 })(window.CDSCLearning);

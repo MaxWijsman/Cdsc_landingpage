@@ -37,7 +37,7 @@
         save(memory);
         return Q.core.clone(memory);
       };
-      return { load, save, reset, status: () => temporary ? "Progress is available for this visit only." : "Saved in this browser.", temporary: () => temporary };
+      return { load, save, reset, status: () => temporary ? "Je voortgang blijft alleen tijdens dit bezoek beschikbaar." : "Opgeslagen in deze browser.", temporary: () => temporary };
     },
   };
 })(window.CDSCLearning = window.CDSCLearning || {});

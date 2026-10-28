@@ -36,18 +36,18 @@
     const body = document.getElementById("quest-body");
     body.replaceChildren();
     const message = document.createElement("p");
-    message.textContent = "The practice desk could not load. Check your connection, then try again.";
+    message.textContent = "Het leerpaneel kan niet worden geladen. Controleer je verbinding en probeer het opnieuw.";
     const retry = document.createElement("button");
     retry.type = "button";
     retry.className = "q-button q-primary";
-    retry.textContent = "Retry loading";
+    retry.textContent = "Opnieuw laden";
     retry.addEventListener("click", () => { retry.disabled = true; load().then((controller) => { if (dialog.open) controller.onOpen(); }).catch(errorView); });
     body.append(message, retry);
   };
   const open = () => {
     if (dialog.open || closing) return;
     if (typeof dialog.showModal !== "function") {
-      trigger.setAttribute("aria-label", "AI Learning Track requires a current browser");
+      trigger.setAttribute("aria-label", "Het AI-leerpad werkt met een recente browser");
       return;
     }
     previousOverflow = document.body.style.overflow;

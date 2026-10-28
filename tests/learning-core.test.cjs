@@ -50,7 +50,7 @@ test("delegation feedback preserves final human authority", () => {
   const state = { ...game.createAttempt(), phase: "active", round: 3, results: Array.from({ length: 3 }, () => ({ score: 100, critical: false })) };
   const result = game.reduce(state, { type: "classify", id: "review" });
   assert.equal(result.evaluation.critical, true);
-  assert.match(result.evaluation.feedback[0], /human/i);
+  assert.match(result.evaluation.feedback[0], /mens/i);
 });
 
 test("repair feedback is stateful, bounded to three unique turns, and can remove unsupported claims", () => {
@@ -105,8 +105,8 @@ test("data minimization does not reward removing every useful fact; safe refusal
   Q.content.policy.allowed.enterprise = ["public"];
   assert.equal(game.evaluate(safe).critical, true);
   const view = game.render({ ...safe, screen: "workflow" }, { view: Q.view, dispatch() {} });
-  assert.match(view.body.textContent, /Training Enterprise Assistant: public only/);
-  assert.doesNotMatch(view.body.textContent, /public \+ internal/);
+  assert.match(view.body.textContent, /Zakelijke oefenassistent: openbaar toegestaan/);
+  assert.doesNotMatch(view.body.textContent, /openbaar \+ intern/);
 });
 
 test("best scores survive replay and any play order yields a 500-point track", () => {

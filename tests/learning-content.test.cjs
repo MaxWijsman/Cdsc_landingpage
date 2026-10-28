@@ -65,7 +65,7 @@ test("authored evidence distinguishes percentage points, percent change, and uns
 
 test("fictional policies and data never treat anonymization as permission", () => {
   const { Q } = environment();
-  assert.match(Q.content.policy.label, /Fictional/);
+  assert.match(Q.content.policy.label, /Fictieve/);
   for (const classes of Object.values(Q.content.policy.allowed)) for (const forbidden of ["personal", "secret", "restricted"]) assert.ok(!classes.includes(forbidden));
   assert.equal(Q.content.danger[1].classification, "restricted");
   assert.equal(Q.content.danger[1].preferred, "decline");
@@ -74,4 +74,15 @@ test("fictional policies and data never treat anonymization as permission", () =
     assert.ok(scenario.segments.some(span => !span.remove));
     assert.equal(new Set(scenario.segments.map(span => span.id)).size, scenario.segments.length);
   }
+  const inbox = Q.games.inbox.evaluate({ round: 0, choices: { task: "task-good" }, firstScore: null });
+  assert.match(inbox.feedback.join(" "), /doelgroep.*toon.*grenzen.*vorm/);
+  assert.doesNotMatch(inbox.feedback.join(" "), /audience|constraints|format/);
+  const repair = Q.games.repair.render({ ...Q.games.repair.createAttempt(), phase: "active" }, { view: Q.view, dispatch() {} });
+  assert.match(repair.body.textContent, /juistheid.*bondigheid.*structuur/);
+  assert.doesNotMatch(repair.body.textContent, /accuracy|concise|structured/);
+  const danger = Q.games["data-danger"];
+  const state = { ...danger.createAttempt(), phase: "active", round: 1, workflow: "public" };
+  assert.match(danger.render(state, { view: Q.view, dispatch() {} }).body.textContent, /Documentklasse: beperkt toegankelijk/);
+  assert.match(danger.evaluate(state).feedback.join(" "), /persoonsgegevens.*toegangsgegevens/);
+  assert.doesNotMatch(danger.evaluate(state).feedback.join(" "), /restricted|personal|secret|internal/);
 });

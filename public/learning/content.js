@@ -2,90 +2,93 @@
   "use strict";
   const choice = (id, label, quality) => ({ id, label, quality });
   const ingredients = (task, context, audience, constraint) => ({
-    task: [choice("task-good", task, "good"), choice("task-weak", "Just write something about the request", "weak"), choice("task-unsafe", "Promise whatever resolves the problem", "unsafe")],
-    context: [choice("context-good", context, "good"), choice("context-weak", "Add unrelated company history", "weak"), choice("context-none", "Leave out the background", "weak")],
-    audience: [choice("audience-good", audience, "good"), choice("audience-weak", "Write to anyone", "weak"), choice("audience-wrong", "Write as a casual social post", "weak")],
-    tone: [choice("tone-good", "Professional, warm and respectful", "good"), choice("tone-weak", "Be blunt and confrontational", "weak"), choice("tone-vague", "Use whatever tone you prefer", "weak")],
-    constraints: [choice("constraints-good", constraint, "good"), choice("constraints-weak", "Do not check which commitments are allowed", "weak"), choice("constraints-unsafe", "Invent a policy or deadline to sound confident", "unsafe")],
-    format: [choice("format-good", "Short email with a subject line", "good"), choice("format-weak", "A long essay", "weak"), choice("format-vague", "No output format specified", "weak")],
+    task: [choice("task-good", task, "good"), choice("task-weak", "Schrijf iets over het verzoek", "weak"), choice("task-unsafe", "Beloof wat nodig is om het probleem op te lossen", "unsafe")],
+    context: [choice("context-good", context, "good"), choice("context-weak", "Voeg ongerelateerde bedrijfsgeschiedenis toe", "weak"), choice("context-none", "Laat de achtergrond weg", "weak")],
+    audience: [choice("audience-good", audience, "good"), choice("audience-weak", "Schrijf voor een willekeurige lezer", "weak"), choice("audience-wrong", "Schrijf als een informeel bericht op sociale media", "weak")],
+    tone: [choice("tone-good", "Professioneel, vriendelijk en respectvol", "good"), choice("tone-weak", "Wees bot en confronterend", "weak"), choice("tone-vague", "Kies zelf een toon", "weak")],
+    constraints: [choice("constraints-good", constraint, "good"), choice("constraints-weak", "Controleer niet welke toezeggingen zijn toegestaan", "weak"), choice("constraints-unsafe", "Verzin een regel of deadline om zeker over te komen", "unsafe")],
+    format: [choice("format-good", "Korte e-mail met een onderwerpregel", "good"), choice("format-weak", "Een lang betoog", "weak"), choice("format-vague", "Geen vorm voor het antwoord opgegeven", "weak")],
   });
   const inbox = [
     {
-      id: "discount", title: "A discount dilemma", brief: "A fictional client asks for a 40% discount. You cannot approve it. Draft a respectful reply that keeps the relationship open.",
-      ingredients: ingredients("Decline the requested 40% discount", "Maintain a positive client relationship", "An existing business client", "Do not promise an unauthorized discount"),
-      subject: "Your discount request", greeting: "Dear Rowan,", goodBody: "Thank you for your request. We cannot offer the 40% discount requested.", positive: "We value our working relationship and would welcome a conversation about other authorized options.", unsafe: "We can approve your 40% discount immediately.", invented: "Our company policy guarantees a 40% discount to all existing clients.",
+      id: "discount", title: "Een lastig kortingsverzoek", brief: "Een fictieve klant vraagt 40% korting. Je mag die niet toezeggen. Schrijf een respectvol antwoord dat de relatie goed houdt.",
+      ingredients: ingredients("Wijs het verzoek om 40% korting af", "Behoud een goede relatie met de klant", "Een bestaande zakelijke klant", "Beloof geen korting zonder toestemming"),
+      subject: "Uw kortingsverzoek", greeting: "Beste Rowan,", goodBody: "Bedankt voor uw verzoek. Wij kunnen de gevraagde korting van 40% niet aanbieden.", positive: "Wij waarderen onze samenwerking en bespreken graag welke andere mogelijkheden zijn toegestaan.", unsafe: "Wij kunnen uw korting van 40% direct goedkeuren.", invented: "Volgens ons bedrijfsbeleid krijgen alle bestaande klanten gegarandeerd 40% korting.",
     },
     {
-      id: "delay", title: "A deadline has moved", brief: "A fictional project is delayed by a supplier. A new delivery date is not confirmed. Update colleagues clearly without inventing a deadline.",
-      ingredients: ingredients("Explain the delay and what happens next", "A supplier delay; a new date is not confirmed", "Colleagues waiting for the project", "Do not invent a deadline or make new commitments"),
-      subject: "Project delivery update", greeting: "Hello team,", goodBody: "A supplier delay has affected our project. We do not yet have a confirmed delivery date.", positive: "We will share an update when the supplier confirms the schedule. Thank you for your patience.", unsafe: "Delivery is guaranteed by Friday, even though the supplier has not confirmed it.", invented: "Our policy guarantees that supplier delays never affect delivery dates.",
+      id: "delay", title: "Een project loopt vertraging op", brief: "Een fictief project loopt vertraging op door een leverancier. Een nieuwe opleverdatum is nog niet bevestigd. Informeer je collega's zonder een deadline te verzinnen.",
+      ingredients: ingredients("Leg de vertraging en de volgende stap uit", "Vertraging bij de leverancier; een nieuwe datum is niet bevestigd", "Collega's die op het project wachten", "Verzin geen deadline en doe geen nieuwe toezeggingen"),
+      subject: "Update over de oplevering", greeting: "Beste collega's,", goodBody: "Ons project loopt vertraging op door een leverancier. Er is nog geen bevestigde opleverdatum.", positive: "Zodra de leverancier de planning bevestigt, delen we een update. Bedankt voor jullie geduld.", unsafe: "De oplevering is gegarandeerd voor vrijdag, ook al heeft de leverancier dit niet bevestigd.", invented: "Ons beleid garandeert dat vertraging bij leveranciers nooit invloed heeft op de opleverdatum.",
     },
   ];
   const delegation = [
-    { id: "titles", task: "Brainstorm five titles for an internal presentation.", context: "Only public topic information is needed. Use an approved tool.", answer: "help", why: "AI is useful for low-risk idea generation. You choose which ideas to use." },
-    { id: "notes", task: "Summarize non-sensitive meeting notes.", context: "The selected enterprise tool is approved for these notes.", answer: "help", why: "AI can organize permitted information. Check that the summary matches your notes." },
-    { id: "outline", task: "Suggest improvements to a presentation outline.", context: "The outline contains public, non-sensitive information.", answer: "help", why: "AI can suggest structure and alternatives while you retain editorial judgment." },
-    { id: "hiring", task: "Make the final hiring decision between two candidates.", context: "This task is the employment decision itself, not drafting interview questions.", answer: "human", critical: true, why: "The accountable human hiring process must make the final decision." },
-    { id: "contract", task: "Make a legally binding contractual commitment.", context: "This task authorizes the commitment; it is not merely drafting wording.", answer: "human", critical: true, why: "An authorized person must make the commitment. AI does not hold that authority." },
-    { id: "customer", task: "Draft a reply to an unhappy customer.", context: "Use an approved tool and permitted facts. A colleague will send the final response.", answer: "review", why: "AI can draft; a person must review facts, tone and any commitments before sending." },
-    { id: "plan", task: "Create a first draft of a project plan.", context: "The project owner must validate scope, resources and dates.", answer: "review", why: "AI can outline a plan. The owner must check whether its assumptions and deadlines are realistic." },
-    { id: "forecast", task: "Help check a financial forecast.", context: "An approved tool may assist; an accountable reviewer must verify the data, calculations and conclusions.", answer: "review", why: "AI may assist the review, but it cannot establish that a forecast is reliable on its own." },
+    { id: "titles", task: "Bedenk vijf titels voor een interne presentatie.", context: "Je hebt alleen openbare informatie over het onderwerp nodig. Gebruik een goedgekeurd hulpmiddel.", answer: "help", why: "AI kan helpen ideeën te bedenken voor taken met weinig risico. Jij kiest welke ideeën je gebruikt." },
+    { id: "notes", task: "Vat niet-gevoelige vergadernotities samen.", context: "Het gekozen zakelijke AI-hulpmiddel is goedgekeurd voor deze notities.", answer: "help", why: "AI kan toegestane informatie ordenen. Controleer of de samenvatting klopt met je notities." },
+    { id: "outline", task: "Stel verbeteringen voor aan de opzet van een presentatie.", context: "De opzet bevat openbare, niet-gevoelige informatie.", answer: "help", why: "AI kan structuur en alternatieven voorstellen. Jij bepaalt wat je overneemt." },
+    { id: "hiring", task: "Neem de definitieve aanstellingsbeslissing tussen twee kandidaten.", context: "Het gaat om de aanstellingsbeslissing zelf, niet om het opstellen van sollicitatievragen.", answer: "human", critical: true, why: "De verantwoordelijke mensen binnen het aanstellingsproces moeten de definitieve beslissing nemen." },
+    { id: "contract", task: "Doe een juridisch bindende contractuele toezegging.", context: "Deze taak gaat om het aangaan van de verplichting, niet alleen om het schrijven van de tekst.", answer: "human", critical: true, why: "Een bevoegd persoon moet de toezegging doen. AI heeft die bevoegdheid niet." },
+    { id: "customer", task: "Schrijf een conceptantwoord aan een ontevreden klant.", context: "Gebruik een goedgekeurd hulpmiddel en toegestane informatie. Een collega verstuurt het uiteindelijke antwoord.", answer: "review", why: "AI kan een concept schrijven. Een mens controleert vóór verzending de feiten, toon en eventuele toezeggingen." },
+    { id: "plan", task: "Maak een eerste concept van een projectplan.", context: "De projecteigenaar moet de afbakening, middelen en datums controleren.", answer: "review", why: "AI kan een plan opzetten. De eigenaar controleert of de aannames en deadlines haalbaar zijn." },
+    { id: "forecast", task: "Help bij het controleren van een financiële prognose.", context: "Een goedgekeurd hulpmiddel mag helpen. Een verantwoordelijke beoordelaar moet de gegevens, berekeningen en conclusies controleren.", answer: "review", why: "AI mag helpen bij de controle, maar kan niet zelfstandig vaststellen dat een prognose betrouwbaar is." },
   ];
   const repair = [
-    { id: "project", title: "A status report without a point", goal: "Give management a short, evidence-based status update with a recommendation.", source: "Project Cedar: testing is two days behind plan. A supplier fix is outstanding. Recommendation: assign an owner to confirm the fix before setting a new launch date.", facts: "Testing is two days behind plan.", risk: "The supplier fix is still outstanding.", next: "Assign an owner to confirm the fix before setting a new launch date.", original: "There have been various activities and discussions. Many things are progressing in different ways, and the team has been busy with a number of items. Overall, this is a detailed and complicated situation requiring more discussions." },
-    { id: "service", title: "The real issue is buried", goal: "Help management prioritize the documented customer-service problem.", source: "A fictional service team has a backlog of 18 cases. Two cases need a specialist review. Recommendation: assign specialist capacity before promising resolution dates.", facts: "The service backlog contains 18 cases.", risk: "Two cases need specialist review.", next: "Assign specialist capacity before promising resolution dates.", original: "The service area has a broad variety of things going on and a lot of different opinions. Everybody is working hard and would like the situation to be better. There are many possibilities and it might be helpful to think about things some more." },
+    { id: "project", title: "Een statusupdate zonder richting", goal: "Geef het management een korte statusupdate met onderbouwde feiten en een aanbeveling.", source: "Project Cedar: het testen loopt twee dagen achter op de planning. Een oplossing van de leverancier ontbreekt nog. Advies: wijs iemand aan die de oplossing bevestigt voordat je een nieuwe startdatum vastlegt.", facts: "Het testen loopt twee dagen achter op de planning.", risk: "De oplossing van de leverancier ontbreekt nog.", next: "Wijs iemand aan die de oplossing bevestigt voordat je een nieuwe startdatum vastlegt.", original: "Er zijn verschillende activiteiten en gesprekken geweest. Veel zaken ontwikkelen zich op allerlei manieren en het team is met meerdere onderwerpen bezig. Alles bij elkaar is dit een uitgebreide en ingewikkelde situatie die meer overleg vraagt." },
+    { id: "service", title: "Het echte probleem raakt ondergesneeuwd", goal: "Help het management prioriteit te geven aan het vastgelegde probleem bij de klantenservice.", source: "Een fictief serviceteam heeft een achterstand van 18 meldingen. Twee meldingen vragen beoordeling door een specialist. Advies: regel specialistische capaciteit voordat je oplosdatums toezegt.", facts: "De achterstand bij de klantenservice bestaat uit 18 meldingen.", risk: "Twee meldingen vragen beoordeling door een specialist.", next: "Regel specialistische capaciteit voordat je oplosdatums toezegt.", original: "Bij de klantenservice spelen allerlei zaken en bestaan veel verschillende meningen. Iedereen werkt hard en wil de situatie verbeteren. Er zijn veel mogelijkheden en het kan helpen om er nog wat langer over na te denken." },
   ];
   const repairActions = [
-    { id: "structure", label: "Three concise bullets; retain verified facts", why: "Concise structure makes the source facts easier to use." },
-    { id: "next", label: "Lead with the recommendation and next step", why: "A specific next step turns a description into something actionable." },
-    { id: "audience", label: "For management: prioritize documented risks", why: "Audience and risk context make the summary decision-relevant." },
-    { id: "cut", label: "Make it as short as possible", why: "Shorter is not always better: this removes important risks and the next step." },
-    { id: "stats", label: "Add impressive statistics", why: "The source provides no support for invented statistics." },
-    { id: "complex", label: "Make it more complicated", why: "Extra complexity makes the draft harder to use." },
+    { id: "structure", label: "Drie korte opsommingstekens; behoud gecontroleerde feiten", why: "Een bondige structuur maakt de feiten uit de bron beter bruikbaar." },
+    { id: "next", label: "Begin met het advies en de volgende stap", why: "Een concrete volgende stap maakt duidelijk wat er moet gebeuren." },
+    { id: "audience", label: "Voor het management: zet vastgelegde risico's voorop", why: "Een passende doelgroep en duidelijke risico's maken de samenvatting bruikbaar voor besluiten." },
+    { id: "cut", label: "Maak het zo kort mogelijk", why: "Korter is niet altijd beter: hierdoor verdwijnen belangrijke risico's en de volgende stap." },
+    { id: "stats", label: "Voeg indrukwekkende cijfers toe", why: "Verzonnen cijfers zijn niet onderbouwd door de bron." },
+    { id: "complex", label: "Maak het ingewikkelder", why: "Extra ingewikkelde tekst maakt het concept minder bruikbaar." },
   ];
   const hunter = [
-    { id: "service-report", title: "A convincing service briefing", evidence: "Fictional quarterly report: satisfaction moved from 70% to 75%. Tickets moved from 1,000 to 880. No study identified what caused the changes.", corrected: "Satisfaction increased by five percentage points and tickets fell by 12%. The cause of these changes is not established.", claims: [
-      { id: "satisfaction", text: "Satisfaction rose by five percentage points.", answer: "supported", why: "75% minus 70% is five percentage points." },
-      { id: "tickets", text: "Support tickets fell by 40%.", answer: "contradicted", why: "A fall from 1,000 to 880 is 12%, not 40%." },
-      { id: "cause", text: "The chatbot caused the improvement.", answer: "verify", why: "The report contains no causal analysis. Unsupported does not mean proven false." },
+    { id: "service-report", title: "Een overtuigend servicerapport", evidence: "Fictief kwartaalrapport: de tevredenheid steeg van 70% naar 75%. Het aantal meldingen daalde van 1.000 naar 880. Er is geen onderzoek naar de oorzaak van deze veranderingen.", corrected: "De tevredenheid steeg met vijf procentpunt en het aantal meldingen daalde met 12%. De oorzaak van deze veranderingen is niet vastgesteld.", claims: [
+      { id: "satisfaction", text: "De tevredenheid steeg met vijf procentpunt.", answer: "supported", why: "75% min 70% is vijf procentpunt." },
+      { id: "tickets", text: "Het aantal ondersteuningsmeldingen daalde met 40%.", answer: "contradicted", why: "Een daling van 1.000 naar 880 is 12%, geen 40%." },
+      { id: "cause", text: "De chatbot veroorzaakte de verbetering.", answer: "verify", why: "Het rapport bevat geen onderzoek naar de oorzaak. Niet onderbouwd betekent niet bewezen onjuist." },
     ] },
-    { id: "project-report", title: "A confident project update", evidence: "Fictional project ledger: budget 120,000; actual cost 126,000. The milestone log confirms 9 of 10 delivered. No industry benchmark is supplied.", corrected: "The project cost 5% more than budget and delivered nine of ten milestones. Its industry ranking has not been established.", claims: [
-      { id: "budget", text: "The project finished under budget.", answer: "contradicted", why: "Actual cost exceeded the budget by 6,000, or 5%." },
-      { id: "milestones", text: "Nine out of ten milestones were delivered.", answer: "supported", why: "The milestone log directly supports this statement." },
-      { id: "ranking", text: "The project leads the industry.", answer: "verify", why: "An industry comparison is needed before making this claim." },
+    { id: "project-report", title: "Een stellig projectverslag", evidence: "Fictieve projectadministratie: budget 120.000; werkelijke kosten 126.000. Het mijlpalenoverzicht bevestigt dat 9 van de 10 mijlpalen zijn behaald. Er is geen vergelijking met de sector beschikbaar.", corrected: "Het project kostte 5% meer dan begroot en behaalde negen van de tien mijlpalen. De positie ten opzichte van de sector is niet vastgesteld.", claims: [
+      { id: "budget", text: "Het project bleef binnen het budget.", answer: "contradicted", why: "De werkelijke kosten lagen 6.000 boven het budget, oftewel 5%." },
+      { id: "milestones", text: "Negen van de tien mijlpalen zijn behaald.", answer: "supported", why: "Het mijlpalenoverzicht onderbouwt deze uitspraak rechtstreeks." },
+      { id: "ranking", text: "Het project loopt voorop in de sector.", answer: "verify", why: "Voor deze uitspraak is een vergelijking met de sector nodig." },
     ] },
   ];
   const danger = [
-    { id: "complaint", title: "Clean up the complaint", brief: "Summarize the issue using the fictional enterprise assistant. The complaint is internal information; personal identifiers are unnecessary.", classification: "internal", preferred: "enterprise", segments: [
-      { id: "name", text: "Name: Mila Example", dataClass: "personal", remove: true },
-      { id: "phone", text: "Phone: 000-TRAINING-ONLY", dataClass: "personal", remove: true },
-      { id: "email", text: "Email: mila@example.invalid", dataClass: "personal", remove: true },
-      { id: "account", text: "Account: DEMO-0000", dataClass: "personal", remove: true },
-      { id: "issue", text: "The delivery arrived late.", dataClass: "internal", remove: false },
-      { id: "request", text: "The customer requests a delivery update.", dataClass: "internal", remove: false },
+    { id: "complaint", title: "Schoon de klacht op", brief: "Vat het probleem samen met de fictieve zakelijke assistent. De klacht is interne informatie; persoonsgegevens zijn niet nodig.", classification: "internal", preferred: "enterprise", segments: [
+      { id: "name", text: "Naam: Mila Voorbeeld", dataClass: "personal", remove: true },
+      { id: "phone", text: "Telefoon: 000-ALLEEN-OEFENING", dataClass: "personal", remove: true },
+      { id: "email", text: "E-mail: mila@example.invalid", dataClass: "personal", remove: true },
+      { id: "account", text: "Klantnummer: DEMO-0000", dataClass: "personal", remove: true },
+      { id: "issue", text: "De levering kwam te laat aan.", dataClass: "internal", remove: false },
+      { id: "request", text: "De klant vraagt om een update over de levering.", dataClass: "internal", remove: false },
     ] },
-    { id: "restricted-plan", title: "Redaction is not permission", brief: "A colleague wants to send a restricted project note to a public assistant. The document remains restricted after removing identifiers.", classification: "restricted", preferred: "decline", segments: [
-      { id: "owner", text: "Owner: Rowan Example", dataClass: "personal", remove: true },
-      { id: "credential", text: "Key: TRAINING-NOT-A-REAL-KEY", dataClass: "secret", remove: true },
-      { id: "project", text: "Restricted: unreleased Project Lumen plan.", dataClass: "restricted", remove: false },
-      { id: "decision", text: "The plan requires an approved non-AI process.", dataClass: "internal", remove: false },
+    { id: "restricted-plan", title: "Weglakken geeft geen toestemming", brief: "Een collega wil een beperkt toegankelijke projectnotitie naar een openbare assistent sturen. Ook zonder persoonsgegevens blijft het document beperkt toegankelijk.", classification: "restricted", preferred: "decline", segments: [
+      { id: "owner", text: "Eigenaar: Rowan Voorbeeld", dataClass: "personal", remove: true },
+      { id: "credential", text: "Toegangscode: OEFENING-GEEN-ECHTE-CODE", dataClass: "secret", remove: true },
+      { id: "project", text: "Beperkt toegankelijk: nog niet vrijgegeven plan voor Project Lumen.", dataClass: "restricted", remove: false },
+      { id: "decision", text: "Gebruik voor dit plan een goedgekeurd proces zonder AI.", dataClass: "internal", remove: false },
     ] },
   ];
   Q.content = {
     version: 1,
     order: ["inbox", "delegate", "repair", "hunter", "data-danger"],
     meta: {
-      inbox: { title: "Inbox Inferno", skill: "Build a useful prompt", duration: "2–3 min", takeaway: "Tell AI what to achieve, who it is for, and which constraints matter." },
-      delegate: { title: "Delegate or Don’t?", skill: "Choose where AI can help", duration: "2 min", takeaway: "AI can assist. Accountability and final authority stay with people." },
-      repair: { title: "Fix My AI!", skill: "Improve the first draft", duration: "2–3 min", takeaway: "Give specific feedback and preserve the facts that matter." },
-      hunter: { title: "Hallucination Hunter", skill: "Follow the evidence", duration: "2–3 min", takeaway: "Confidence is not evidence. Check important claims against sources." },
-      "data-danger": { title: "Data Danger", skill: "Protect information", duration: "2 min", takeaway: "Check the tool, the data rules, and what information is actually needed." },
+      inbox: { title: "Inbox in brand", skill: "Maak een bruikbare prompt", duration: "2–3 min", takeaway: "Vertel AI wat het doel is, voor wie het antwoord is en welke grenzen gelden." },
+      delegate: { title: "Uitbesteden of niet?", skill: "Kies waar AI kan helpen", duration: "2 min", takeaway: "AI kan ondersteunen. Mensen blijven verantwoordelijk en nemen de definitieve beslissingen." },
+      repair: { title: "Verbeter mijn AI!", skill: "Verbeter het eerste concept", duration: "2–3 min", takeaway: "Geef gerichte feedback en behoud belangrijke feiten." },
+      hunter: { title: "Feitenjacht", skill: "Volg de bronnen", duration: "2–3 min", takeaway: "Een stellig antwoord is geen bewijs. Controleer belangrijke uitspraken aan de hand van bronnen." },
+      "data-danger": { title: "Datagevaar", skill: "Bescherm informatie", duration: "2 min", takeaway: "Controleer het hulpmiddel, de gegevensregels en welke informatie echt nodig is." },
     },
     slots: ["task", "context", "audience", "tone", "constraints", "format"],
+    slotLabels: { task: "Taak", context: "Context", audience: "Doelgroep", tone: "Toon", constraints: "Grenzen", format: "Vorm" },
+    qualityLabels: { accuracy: "juistheid", concise: "bondigheid", structured: "structuur", risks: "risico's", audience: "doelgroep", next: "volgende stap" },
+    classLabels: { public: "openbaar", internal: "intern", personal: "persoonsgegevens", restricted: "beperkt toegankelijk", secret: "toegangsgegevens" },
     inbox, delegation, repair, repairActions, hunter, danger,
-    categories: [{ id: "help", label: "AI Can Help" }, { id: "human", label: "Human Decision" }, { id: "review", label: "AI + Human Review" }],
-    verdicts: [{ id: "supported", label: "Supported" }, { id: "verify", label: "Needs verification" }, { id: "contradicted", label: "Contradicted" }],
-    workflows: [{ id: "enterprise", label: "Training Enterprise Assistant" }, { id: "public", label: "Training Public Assistant" }, { id: "decline", label: "Use an approved non-AI process" }],
-    policy: { label: "Fictional training rules — follow your organisation’s policy at work.", allowed: { enterprise: ["public", "internal"], public: ["public"] } },
+    categories: [{ id: "help", label: "AI kan helpen" }, { id: "human", label: "Mens beslist" }, { id: "review", label: "AI + menselijke controle" }],
+    verdicts: [{ id: "supported", label: "Onderbouwd" }, { id: "verify", label: "Nog controleren" }, { id: "contradicted", label: "Weersproken" }],
+    workflows: [{ id: "enterprise", label: "Zakelijke oefenassistent" }, { id: "public", label: "Openbare oefenassistent" }, { id: "decline", label: "Gebruik een goedgekeurd proces zonder AI" }],
+    policy: { label: "Fictieve oefenregels — volg op het werk het beleid van je organisatie.", allowed: { enterprise: ["public", "internal"], public: ["public"] } },
   };
 })(window.CDSCLearning = window.CDSCLearning || {});
