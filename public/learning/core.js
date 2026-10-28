@@ -32,7 +32,7 @@
     if (!game.id || ["createAttempt", "reduce", "evaluate", "render", "hydrate"].some((method) => typeof game[method] !== "function")) throw new Error("Invalid game registration");
     Q.games[game.id] = game;
   };
-  const initialProgress = () => ({ schemaVersion: 1, trackId: "ai-office-quest", contentVersion: Q.content?.version || 1, updatedAt: new Date().toISOString(), lastGameId: null, games: {} });
+  const initialProgress = () => ({ schemaVersion: 1, trackId: "ai-office-quest", contentVersion: Q.content?.version || 1, updatedAt: new Date().toISOString(), lastGameId: null, welcomeSeen: false, games: {} });
   const record = (progress, id, state, newAttempt = false) => {
     const old = progress.games[id]?.revision === state.revision ? progress.games[id] : { revision: state.revision, completed: false, bestScore: null, bestSafetyClear: false, attemptCount: 0, checkpoint: null };
     const entry = { ...old, checkpoint: clone(state), attemptCount: old.attemptCount + (newAttempt ? 1 : 0) };
@@ -56,6 +56,7 @@
   const validateProgress = (raw) => {
     if (!raw || raw.schemaVersion !== 1 || raw.trackId !== "ai-office-quest" || !raw.games || typeof raw.games !== "object") throw new Error("Unsupported progress");
     const progress = initialProgress();
+    progress.welcomeSeen = raw.welcomeSeen === true;
     for (const id of Q.content.order) {
       const entry = raw.games[id];
       if (!entry) continue;

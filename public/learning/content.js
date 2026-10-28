@@ -102,6 +102,18 @@
   ];
   Q.content = {
     version: 3,
+    welcome: {
+      title: "Meer grip op AI in je werk",
+      description: "Oefen in vijf korte opdrachten hoe je AI duidelijk aanstuurt, antwoorden beoordeelt en zorgvuldig met informatie omgaat.",
+      hint: "Probeer, bekijk de feedback en verbeter je aanpak. Zonder tijdsdruk.",
+      goals: {
+        inbox: "Duidelijke instructies geven met RICHT.",
+        delegate: "Kiezen waar AI helpt en waar jij beslist.",
+        repair: "Prompts en concepten gericht verbeteren.",
+        hunter: "Uitspraken toetsen met berekeningen en bronnen.",
+        "data-danger": "Gevoelige gegevens herkennen en veilig werken.",
+      },
+    },
     order: ["inbox", "delegate", "repair", "hunter", "data-danger"],
     meta: {
       inbox: { title: "Inbox in brand", skill: "Bouw een RICHT-prompt", duration: "3 min", takeaway: "Gebruik Rol, Intentie, Context, Houding en Template. Few-shot voorbeelden zijn een optionele aanvulling." },

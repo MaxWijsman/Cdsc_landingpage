@@ -40,6 +40,9 @@
 .q-recommended { border-color: #e17000; box-shadow: inset 0 3px #e17000; }
 .q-layout { display: grid; grid-template-columns: minmax(200px, .85fr) minmax(0, 2fr); gap: 22px; align-items: start; }
 .q-context { border-left: 3px solid #e17000; padding-left: 12px; }
+.q-welcome-goals { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.q-welcome-goals li { display: grid; grid-template-columns: minmax(150px, .8fr) minmax(0, 1.8fr); gap: 12px; align-items: baseline; font-size: 14px; line-height: 1.35; }
+.q-welcome-goals strong { color: #154273; font: 700 16px/1.2 "Roboto Condensed", sans-serif; }
 .q-panel { min-width: 0; }
 .q-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .q-choices.q-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -90,6 +93,7 @@
   .q-track-score { font-size: 11px; }
   .q-body { padding: 16px; }
   .q-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .q-welcome-goals li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .q-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .q-overview .q-game-card:last-child { grid-column: 1 / -1; }
   .q-choices { grid-template-columns: minmax(0, 1fr); }

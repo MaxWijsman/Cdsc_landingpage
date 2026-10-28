@@ -58,7 +58,7 @@ De tests controleren de startpagina, alle vijf spellen, scores en veiligheidsgre
 
 ## AI Werkplekavontuur
 
-Kies de oranje ster om het leerpaneel onderaan het scherm te openen. Alle spellen zijn direct beschikbaar:
+Kies de oranje ster om het leerpaneel onderaan het scherm te openen. Bij de eerste opening verschijnt een korte introductie met het gezamenlijke doel en wat je per opdracht oefent. Na ‘Bekijk de opdrachten’ wordt dit in de huidige browser onthouden en opent voortaan direct het speloverzicht. Bestaande spelvoortgang blijft behouden. Alle spellen zijn beschikbaar:
 
 1. **Inbox in brand** — bouw een RICHT-prompt voor twee e-mailscenario's. In de tweede ronde zijn few-shot voorbeelden optioneel.
 2. **Uitbesteden of niet?** — verdeel acht werktaken naar de passende rol voor AI en mensen.
