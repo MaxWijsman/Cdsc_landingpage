@@ -24,20 +24,25 @@ test("RICHT has exactly five parts, with tone-only Houding and the agreed weight
   assert.match(game.evaluate(active(game)).feedback.join(" "), /Bij Context ontbreekt dat je geen korting mag toezeggen/);
 });
 
-test("few-shot examples score relevance, cap unsafe promises, and never copy unrelated facts", () => {
+test("few-shot examples are optional, give no bonus, and still cap unsafe promises", () => {
   const { Q } = environment(), game = Q.games.inbox;
   const examples = Q.content.inbox[1].examples;
+  const choices = Object.fromEntries(Q.content.slots.map(slot => [slot, slot + "-good"]));
+  assert.equal(game.evaluate({ ...second(game), choices, examples: [] }).score, 100);
   for (let a = 0; a < 4; a++) for (let b = a + 1; b < 4; b++) {
-    const state = { ...second(game), examples: [examples[a].id, examples[b].id] };
+    const state = { ...second(game), choices, examples: [examples[a].id, examples[b].id] };
     const evaluation = game.evaluate(state);
     const unsafe = [examples[a], examples[b]].some(item => item.quality === "unsafe");
     assert.equal(evaluation.critical, unsafe);
-    assert.equal(evaluation.score, unsafe ? Math.min(39, [examples[a], examples[b]].filter(item => item.quality === "good").length * 50) : [examples[a], examples[b]].filter(item => item.quality === "good").length * 50);
+    assert.equal(evaluation.score, unsafe ? 39 : 100);
   }
-  const best = game.evaluate({ ...second(game), examples: ["confirmed", "uncertain"] });
+  const best = game.evaluate({ ...second(game), choices, examples: ["confirmed", "uncertain"] });
   assert.equal(best.score, 100);
   assert.match(best.output, /nog geen bevestigde opleverdatum/);
   assert.doesNotMatch(best.output, /maandag|zaal 4|vrijdag|storing/);
+  assert.equal(game.evaluate({ ...second(game), choices, examples: ["confirmed"] }).score, 100);
+  const incomplete = { ...second(game), choices: { role: "role-good" }, examples: ["confirmed", "uncertain"] };
+  assert.equal(game.evaluate(incomplete).score, 15, "examples must not replace the RICHT score");
   assert.match(game.prompt({ ...second(game), examples: ["confirmed"] }), /Voorbeeld — invoer:/);
 });
 
@@ -45,15 +50,16 @@ test("few-shot selection is bounded and can be refined without duplicate rewards
   const { Q } = environment(), game = Q.games.inbox;
   let state = second(game);
   assert.equal(game.reduce(state, { type: "generate" }).phase, "active");
-  state = sendAll(game, state, ["confirmed", "advert", "uncertain", "missing"].map(id => ({ type: "toggle-example", id })));
-  assert.deepEqual(Array.from(state.examples), ["confirmed", "advert"]);
+  state = sendAll(game, state, roundActions(Q, "inbox", 1).slice(0, -1));
+  state = sendAll(game, state, ["confirmed", "promise", "uncertain", "missing"].map(id => ({ type: "toggle-example", id })));
+  assert.deepEqual(Array.from(state.examples), ["confirmed", "promise"]);
   state = game.reduce(state, { type: "generate" });
-  assert.equal(state.evaluation.score, 50);
+  assert.equal(state.evaluation.score, 39);
   const generation = state.generations;
   assert.equal(game.reduce(state, { type: "generate" }).generations, generation);
-  state = sendAll(game, state, [{ type: "retry" }, { type: "toggle-example", id: "advert" }, { type: "toggle-example", id: "uncertain" }, { type: "generate" }]);
+  state = sendAll(game, state, [{ type: "retry" }, { type: "toggle-example", id: "promise" }, { type: "toggle-example", id: "uncertain" }, { type: "generate" }]);
   assert.equal(state.evaluation.score, 100);
-  assert.equal(state.firstScore, 50);
+  assert.equal(state.firstScore, 39);
   assert.equal(state.results.length, 1);
   assert.equal(game.hydrate(JSON.parse(JSON.stringify(state))).evaluation.score, 100);
 });

@@ -59,7 +59,7 @@
   const intro = () => {
     const meta = Q.content.meta[activeId];
     const instructions = {
-      inbox: "Bouw eerst een RICHT-prompt. Kies daarna passende few-shot voorbeelden die de vorm en toon laten zien, zonder voorbeeldfeiten over te nemen.",
+      inbox: "Bouw in beide rondes een RICHT-prompt. In de tweede ronde kun je optioneel voorbeelden toevoegen. Zonder voorbeelden kun je de maximale score halen.",
       delegate: "Verdeel acht werktaken. Er is geen tijdslimiet: context en menselijke verantwoordelijkheid zijn belangrijker dan snelheid.",
       repair: "Laat AI eerst je prompt met RICHT verbeteren en twee vragen stellen. Verbeter daarna een samenvatting met maximaal drie feedbackbeurten.",
       hunter: "Kies eerst controleerbare tussenstappen. Vergelijk daarna drie afzonderlijke antwoorden. Toets in beide rondes de uitspraken aan de bron.",

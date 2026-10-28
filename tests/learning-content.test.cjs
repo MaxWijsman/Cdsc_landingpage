@@ -9,15 +9,15 @@ test("the catalog contains all sixteen scenario units with unique IDs and comple
   assert.equal(new Set(units.map(unit => unit.id)).size, 16);
   for (const id of Q.content.order) {
     assert.ok(Q.content.meta[id].title && Q.content.meta[id].skill && Q.content.meta[id].takeaway);
-    assert.equal(Q.games[id].revision, ["inbox", "repair", "hunter"].includes(id) ? 2 : 1);
+    assert.equal(Q.games[id].revision, id === "inbox" ? 3 : ["repair", "hunter"].includes(id) ? 2 : 1);
     assert.equal(Q.core.result(perfect(Q, id)).score, 100);
   }
 });
 
 test("every Inbox ingredient combination has bounded scores and visibly unsafe instructions are capped", () => {
   const { Q } = environment();
-  for (let round = 0; round < 1; round++) {
-    const scenario = Q.content.inbox[0];
+  for (let round = 0; round < 2; round++) {
+    const scenario = Q.content.inbox[round];
     const visit = (slotIndex, choices, unsafe) => {
       if (slotIndex === 5) {
         const result = Q.games.inbox.evaluate({ round, choices, firstScore: null });

@@ -1,10 +1,10 @@
 ((Q) => {
   "use strict";
   const choice = (id, label, quality) => ({ id, label, quality });
-  const ingredients = (intent, context) => ({
-    role: [choice("role-good", "Je bent een communicatieadviseur die helpt een concept te schrijven", "good"), choice("role-weak", "Je bent een algemene assistent zonder vakperspectief", "weak"), choice("role-unsafe", "Je bent de directeur en mag zelf korting goedkeuren", "unsafe")],
-    intent: [choice("intent-good", intent, "good"), choice("intent-weak", "Schrijf iets over het verzoek", "weak"), choice("intent-unsafe", "Zeg de gevraagde korting direct toe", "unsafe")],
-    context: [choice("context-good", context, "good"), choice("context-weak", "Vertel over de lange geschiedenis van het bedrijf", "weak"), choice("context-unsafe", "Verzin een bedrijfsregel die de korting toestaat", "unsafe")],
+  const ingredients = (intent, context, delay = false) => ({
+    role: [choice("role-good", delay ? "Je bent een projectassistent die een conceptupdate schrijft" : "Je bent een communicatieadviseur die helpt een concept te schrijven", "good"), choice("role-weak", "Je bent een algemene assistent zonder vakperspectief", "weak"), choice("role-unsafe", delay ? "Je bent de projectleider en mag zelf een onbevestigde opleverdatum vastleggen" : "Je bent de directeur en mag zelf korting goedkeuren", "unsafe")],
+    intent: [choice("intent-good", intent, "good"), choice("intent-weak", delay ? "Schrijf iets over het project" : "Schrijf iets over het verzoek", "weak"), choice("intent-unsafe", delay ? "Garandeer dat het project vrijdag wordt opgeleverd" : "Zeg de gevraagde korting direct toe", "unsafe")],
+    context: [choice("context-good", context, "good"), choice("context-weak", "Vertel over de lange geschiedenis van het bedrijf", "weak"), choice("context-unsafe", delay ? "Verzin een regel die oplevering op vrijdag garandeert" : "Verzin een bedrijfsregel die de korting toestaat", "unsafe")],
     attitude: [choice("attitude-good", "Professioneel, vriendelijk en respectvol", "good"), choice("attitude-weak", "Zakelijk en afstandelijk", "weak"), choice("attitude-wrong", "Bot en confronterend", "weak")],
     template: [choice("template-good", "Korte e-mail met een onderwerpregel", "good"), choice("template-weak", "Een lang betoog", "weak"), choice("template-wrong", "Een bericht op sociale media", "weak")],
   });
@@ -17,7 +17,8 @@
     },
     {
       id: "delay", title: "Een project loopt vertraging op", brief: "Een fictief project loopt vertraging op door een leverancier. Een nieuwe opleverdatum is nog niet bevestigd. Informeer je collega's zonder een deadline te verzinnen.",
-      richt: { role: "Je bent een projectassistent die een conceptupdate schrijft", intent: "Informeer collega's over de vertraging en de volgende stap", context: "Vertraging bij de leverancier; nieuwe datum onbekend; doelgroep: collega's; verzin geen deadline", attitude: "Professioneel, vriendelijk en respectvol", template: "Korte e-mail met onderwerpregel, feitelijke update en volgende stap" },
+      ingredients: ingredients("Informeer collega's over de vertraging en de volgende stap", "Vertraging bij de leverancier; nieuwe datum onbekend; doelgroep: collega's; verzin geen deadline", true),
+      feedback: { role: "Bij Rol past een projectassistent die een concept schrijft. AI mag geen onbevestigde opleverdatum vastleggen.", intent: "Bij Intentie ontbreekt het doel: informeer collega's over de vertraging en de volgende stap.", context: "Bij Context ontbreken de doelgroep en het feit dat een nieuwe datum nog niet is bevestigd.", attitude: "Bij Houding past een professionele, vriendelijke en respectvolle toon.", template: "Bij Template past een korte e-mail met onderwerpregel." },
       examples: [
         { id: "confirmed", label: "A · Een bevestigde wijziging", quality: "good", input: "De fictieve kantoorverhuizing naar zaal 4 is bevestigd voor maandag.", output: "Onderwerp: Nieuwe werkplek\nBeste collega's, maandag verhuizen we naar zaal 4. Bekijk vooraf de route. Bedankt voor jullie medewerking.", why: "Dit voorbeeld toont een korte e-mail met een duidelijke volgende stap. De zaal en datum horen alleen bij het voorbeeld." },
         { id: "uncertain", label: "B · Nog geen datum bekend", quality: "good", input: "Een leverancier onderzoekt een storing. Het herstelmoment is nog onbekend.", output: "Onderwerp: Update over de storing\nBeste collega's, de leverancier onderzoekt de storing. Het herstelmoment is nog onbekend. We delen een update zodra dit bevestigd is.", why: "Dit voorbeeld laat zien hoe je onzekerheid eerlijk benoemt zonder een datum te verzinnen." },
@@ -100,10 +101,10 @@
     ] },
   ];
   Q.content = {
-    version: 2,
+    version: 3,
     order: ["inbox", "delegate", "repair", "hunter", "data-danger"],
     meta: {
-      inbox: { title: "Inbox in brand", skill: "RICHT en few-shot voorbeelden", duration: "3 min", takeaway: "Gebruik Rol, Intentie, Context, Houding en Template. Voorbeelden sturen het patroon, niet de feiten." },
+      inbox: { title: "Inbox in brand", skill: "Bouw een RICHT-prompt", duration: "3 min", takeaway: "Gebruik Rol, Intentie, Context, Houding en Template. Few-shot voorbeelden zijn een optionele aanvulling." },
       delegate: { title: "Uitbesteden of niet?", skill: "Kies waar AI kan helpen", duration: "2 min", takeaway: "AI kan ondersteunen. Mensen blijven verantwoordelijk en nemen de definitieve beslissingen." },
       repair: { title: "Verbeter mijn AI!", skill: "Meta-prompting en verbeteren", duration: "3 min", takeaway: "Laat AI je prompt met RICHT verbeteren en ontbrekende informatie uitvragen. Controleer het voorstel zelf." },
       hunter: { title: "Feitenjacht", skill: "Tussenstappen en zelf-consistentie", duration: "3 min", takeaway: "Controleer tussenresultaten en vergelijk antwoorden. Ook overeenstemming moet je aan bronnen toetsen." },
@@ -121,7 +122,7 @@
     techniques: [
       { id: "meta", title: "Meta-prompting", text: "Laat AI je prompt met RICHT verbeteren en eerst ontbrekende informatie uitvragen.", game: "repair" },
       { id: "cot", title: "Chain-of-thought prompting", text: "Stuur op controleerbare tussenstappen: bronwaarden → berekening → korte conclusie. Meer tekst is geen bewijs.", game: "hunter" },
-      { id: "few-shot", title: "Few-shot voorbeelden", text: "Geef enkele passende invoer-uitvoervoorbeelden. Neem het patroon over, niet de voorbeeldfeiten.", game: "inbox" },
+      { id: "few-shot", title: "Few-shot voorbeelden", text: "Je kunt passende invoer-uitvoervoorbeelden toevoegen. Dit is optioneel. Neem het patroon over, niet de voorbeeldfeiten.", game: "inbox" },
       { id: "consistency", title: "Zelf-consistentie", text: "Vergelijk meerdere afzonderlijke antwoorden en toets de conclusie aan bronnen. Een meerderheid kan ongelijk hebben.", game: "hunter" },
     ],
     qualityLabels: { accuracy: "juistheid", concise: "bondigheid", structured: "structuur", risks: "risico's", audience: "doelgroep", next: "volgende stap" },

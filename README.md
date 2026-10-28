@@ -60,7 +60,7 @@ De tests controleren de startpagina, alle vijf spellen, scores en veiligheidsgre
 
 Kies de oranje ster om het leerpaneel onderaan het scherm te openen. Alle spellen zijn direct beschikbaar:
 
-1. **Inbox in brand** — bouw een RICHT-prompt en kies passende few-shot voorbeelden voor een tweede e-mailscenario.
+1. **Inbox in brand** — bouw een RICHT-prompt voor twee e-mailscenario's. In de tweede ronde zijn few-shot voorbeelden optioneel.
 2. **Uitbesteden of niet?** — verdeel acht werktaken naar de passende rol voor AI en mensen.
 3. **Verbeter mijn AI!** — laat AI je prompt met RICHT verbeteren en pas daarna een samenvatting aan in drie beurten.
 4. **Feitenjacht** — controleer tussenstappen, vergelijk drie antwoorden en toets zes uitspraken aan fictieve bronnen.
@@ -80,13 +80,15 @@ Inhoud en spelcode worden bij de eerste opening geladen. Nieuwe spellen volgen h
 
 RICHT staat voor Rol, Intentie, Context, Houding en Template. Rol beschrijft het vakperspectief van AI en geeft geen beslissingsbevoegdheid. Intentie beschrijft het doel. Context bevat feiten, doelgroep en grenzen. Houding gaat uitsluitend over toon en stijl. Template bepaalt de antwoordvorm. De spiekkaart is vanuit elk spel beschikbaar via de vraagtekenknop; teruggaan behoudt de opdracht en keuzes. Het eindoverzicht biedt dezelfde spiekkaart.
 
-Inbox in brand beoordeelt de vijf onderdelen met 15, 25, 30, 15 en 15 punten. In de tweede ronde zijn twee van vier voorbeelden passend; elk levert 50 punten op. Het patroon wordt overgenomen, maar de voorbeeldfeiten worden niet naar de nieuwe situatie gekopieerd. Een onbevoegde toezegging activeert de bestaande veiligheidsgrens.
+Inbox in brand beoordeelt in beide rondes de vijf RICHT-onderdelen met 15, 25, 30, 15 en 15 punten. Je kunt beide rondes zonder voorbeelden met 100 punten afronden. In de tweede ronde kun je via ‘Voorbeelden (optioneel)’ maximaal twee few-shot voorbeelden toevoegen. Deze leveren geen extra punten op en vervangen de RICHT-onderdelen niet. De opdrachtfeiten en RICHT-instructies blijven leidend. Een onbevoegde toezegging in een gekozen voorbeeld activeert nog steeds de veiligheidsgrens.
 
 Meta-prompting betekent hier: AI helpt een prompt verbeteren, vraagt ontbrekende Context en Template uit en maakt een controleerbaar voorstel. De juiste meta-prompt levert 40 punten op en elk passend antwoord op de twee verduidelijkingsvragen 30. De tweede ronde behoudt de drie bestaande verbeterbeurten.
 
 Chain-of-thought prompting wordt geoefend met controleerbare tussenresultaten en een korte onderbouwing. De juiste aanpak levert in Feitenjacht 20 punten op; classificatie en brongebruik tellen samen voor 80. In de tweede ronde bekijk je drie afzonderlijke gesimuleerde antwoorden voordat je de uitspraken beoordeelt. Twee antwoorden bevatten dezelfde ongefundeerde claim. Zelf-consistentie vervangt daarom geen broncontrole; overeenstemming levert op zichzelf geen juistheidspunten op.
 
-De inhoudsversie is 2. Inbox in brand, Verbeter mijn AI! en Feitenjacht gebruiken spelrevisie 2; alleen deze drie spellen moeten na een upgrade opnieuw worden gespeeld. De twee andere spellen behouden hun compatibele scores en checkpoints. Een melding noemt de gewijzigde spellen en verdwijnt blijvend nadat de gebruiker ‘Begrepen’ kiest. Het opslagschema en de sleutel blijven gelijk. Voorbeeldkeuzes, antwoorden op verduidelijkingsvragen en bekeken antwoordvarianten worden eveneens lokaal opgeslagen. Het totaal blijft vijf spellen, 500 punten en vijftien sterren.
+De inhoudsversie is 3. Inbox in brand gebruikt spelrevisie 3; Verbeter mijn AI! en Feitenjacht gebruiken revisie 2. Alleen een spel waarvan de revisie wijzigt moet opnieuw worden gespeeld. De andere spellen behouden hun compatibele scores en checkpoints. Een melding noemt de gewijzigde spellen en verdwijnt blijvend nadat de gebruiker ‘Begrepen’ kiest. Het opslagschema en de sleutel blijven gelijk. Voorbeeldkeuzes, antwoorden op verduidelijkingsvragen en bekeken antwoordvarianten worden eveneens lokaal opgeslagen. Het totaal blijft vijf spellen, 500 punten en vijftien sterren.
+
+Het leerpaneel toont geen scrollbar. Langere inhoud blijft bereikbaar met muiswiel, swipe of toetsenbord; de spelinhoud is daarom ook rechtstreeks focusbaar. De kop en actieknoppen blijven zichtbaar.
 
 De richtduur blijft 12–15 minuten, zonder tijdslimiet. Deze duur moet met beginners worden getoetst. De simulaties demonstreren technieken; ze garanderen geen identieke resultaten bij ieder AI-model. Achtergrond: [few-shot prompting](https://arxiv.org/abs/2005.14165), [Chain-of-thought prompting](https://arxiv.org/abs/2201.11903) en [zelf-consistentie](https://arxiv.org/abs/2203.11171).
 

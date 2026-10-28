@@ -56,6 +56,8 @@ function environment({ preload = true, storage = memoryStorage(), reduced = fals
   dialog.append(header);
   header.append(node("quest-home", "button"), node("quest-title", "h2"), node("quest-subtitle", "span"), node("quest-score", "span"), node("quest-help", "button"), node("quest-close", "button"));
   dialog.append(node("quest-body", "section"), node("quest-footer", "footer"), node("quest-announcement"));
+  ids.get("quest-body").setAttribute("tabindex", "0");
+  ids.get("quest-body").setAttribute("aria-label", "Spelinhoud");
   document = {
     head, body, activeElement: null, baseURI: "http://localhost/project/", currentScript: { src: "http://localhost/project/learning/launcher.js" }, events: [],
     createElement: tag => new Element(tag), createElementNS: (namespace, tag) => { const value = new Element(tag); value.namespaceURI = namespace; return value; }, createTextNode: text => new Element("#text", text),
@@ -80,8 +82,7 @@ function roundActions(Q, id, round) {
   const actions = [];
   const send = action => actions.push(action);
   if (id === "inbox") {
-    if (round === 0) for (const slot of Q.content.slots) { send({ type: "slot", id: slot }); send({ type: "choose", id: slot + "-good" }); }
-    else for (const example of ["confirmed", "uncertain"]) send({ type: "toggle-example", id: example });
+    for (const slot of Q.content.slots) { send({ type: "slot", id: slot }); send({ type: "choose", id: slot + "-good" }); }
     send({ type: "generate" });
   }
   if (id === "delegate") send({ type: "classify", id: Q.content.delegation[round].answer });

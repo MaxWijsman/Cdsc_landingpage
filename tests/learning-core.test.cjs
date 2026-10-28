@@ -10,6 +10,7 @@ for (const id of ["inbox", "delegate", "repair", "hunter", "data-danger"]) {
     assert.equal(state.results.length, Q.games[id].count);
     assert.equal(Q.core.result(state).score, 100);
     assert.equal(Q.core.result(state).stars, 3);
+    if (id === "inbox") assert.equal(state.examples.length, 0, "full score must be possible without examples");
     assert.ok(Q.games[id].hydrate(JSON.parse(JSON.stringify(state))));
     assert.equal(JSON.stringify(Q.games[id].reduce(state, { type: "next" })), JSON.stringify(state));
   });
@@ -132,15 +133,16 @@ test("partial choices survive browser storage and changed revisions invalidate o
   adapter.save(progress);
   const loaded = Q.progress.create(storage).load();
   assert.equal(loaded.games.inbox.checkpoint.choices.role, "role-good");
-  Q.games.inbox.revision = 3;
+  const nextRevision = Q.games.inbox.revision + 1;
+  Q.games.inbox.revision = nextRevision;
   const revised = Q.progress.create(storage).load();
   assert.equal(revised.games.inbox, undefined);
   assert.equal(revised.games.delegate.bestScore, 100);
   const newAttempt = Q.games.inbox.createAttempt();
-  assert.equal(newAttempt.revision, 3);
+  assert.equal(newAttempt.revision, nextRevision);
   Q.core.record(revised, "inbox", newAttempt, true);
   adapter.save(revised);
-  assert.equal(Q.progress.create(storage).load().games.inbox.checkpoint.revision, 3);
+  assert.equal(Q.progress.create(storage).load().games.inbox.checkpoint.revision, nextRevision);
 });
 
 test("malformed or unsupported storage is preserved until explicit reset; quota failures use memory", () => {
