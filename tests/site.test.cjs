@@ -284,16 +284,16 @@ test("all three tracks keep moving gently even when no chapter branch is selecte
   });
 });
 
-test("selection extends at half speed and returns to continuous motion before the next chapter", () => {
+test("selection covers half the distance at regular speed and returns before the next chapter", () => {
   const page = setup();
   const background = setup();
   background.learningLink.listeners.pointerenter();
   let maximumTravel = 0;
+  let travelAt400 = 0;
   let travelAt800 = 0;
-  let travelAt1600 = 0;
   let sawRest = false;
   let sawNextChapter = false;
-  for (let time = 0; time <= 6208; time += 32) {
+  for (let time = 0; time <= 3104; time += 32) {
     page.step(time);
     background.step(time);
     const selected = page.highlightTargets.find(element => element.classes.has("is-highlighted")).dataset.destination;
@@ -304,12 +304,12 @@ test("selection extends at half speed and returns to continuous motion before th
       const baseY = Number(background.terminals[0].getAttribute("cy"));
       const travel = Math.hypot(x - baseX, y - baseY) * page.logo.rect.width / 1020;
       maximumTravel = Math.max(maximumTravel, travel);
+      if (time === 384) travelAt400 = travel;
       if (time === 800) travelAt800 = travel;
-      if (time === 1600) travelAt1600 = travel;
       for (const index of [1, 2]) {
         assert.equal(page.paths[index].getAttribute("d"), background.paths[index].getAttribute("d"));
       }
-      if (time >= 4800) {
+      if (time >= 2400) {
         sawRest = true;
         assert.equal(x, baseX);
         assert.equal(y, baseY);
@@ -324,8 +324,8 @@ test("selection extends at half speed and returns to continuous motion before th
       });
     }
   }
-  assert.ok(maximumTravel > 120, "The selected branch should visibly travel along the connection");
-  assert.ok(travelAt1600 > travelAt800 * 1.6, "The slower extension should still be underway at 800 ms");
+  assert.ok(maximumTravel > 60 && maximumTravel < 110, "The extension should cover half its previous distance");
+  assert.ok(travelAt800 > travelAt400 * 1.6, "The original timing should reach full extension by 800 ms");
   assert.ok(sawNextChapter);
 });
 
@@ -334,12 +334,12 @@ test("a new hover waits for the previous extended branch to retract", () => {
   const background = setup();
   background.learningLink.listeners.pointerenter();
   let time = 0;
-  for (; time <= 1920; time += 32) { page.step(time); background.step(time); }
+  for (; time <= 960; time += 32) { page.step(time); background.step(time); }
   const extended = Number(page.terminals[0].getAttribute("cx"));
   page.destinations[1].listeners.pointerenter();
   assert.ok(page.routes[0].classes.has("is-highlighted"));
   assert.ok(!page.routes[1].classes.has("is-highlighted"));
-  for (let index = 0; index < 29; index++, time += 32) { page.step(time); background.step(time); }
+  for (let index = 0; index < 15; index++, time += 32) { page.step(time); background.step(time); }
   assert.ok(extended > 1063);
   assert.ok(page.routes[1].classes.has("is-highlighted"));
   assert.equal(page.terminals[0].getAttribute("cx"), background.terminals[0].getAttribute("cx"));

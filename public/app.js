@@ -63,8 +63,8 @@
   const toggle = document.getElementById("motion-toggle");
   const restShapes = ["M682 555H865L955 468H1063", "M773 626H1063", "M682 695H865L955 785H1063"];
   const restY = [468, 626, 785];
-  const cycleDuration = 6000;
-  const switchDuration = 900;
+  const cycleDuration = 3000;
+  const switchDuration = 450;
   let metrics;
   let hoveredKey = null;
   let focusedKey = null;
@@ -82,10 +82,10 @@
     (preference.matches ? null : highlightTargets[automaticIndex]?.dataset.destination) ?? null;
   const ease = (value) => value * value * (3 - 2 * value);
   const extensionAt = (age) => {
-    if (age < 1600) return ease(age / 1600);
-    if (age < 2600) return 1;
-    if (age < 4800) return 1 - ease((age - 2600) / 2200);
-    return 0; // Return to gentle motion for 1200 ms before the next chapter.
+    if (age < 800) return ease(age / 800);
+    if (age < 1300) return 1;
+    if (age < 2400) return 1 - ease((age - 1300) / 1100);
+    return 0; // Return to gentle motion for 600 ms before the next chapter.
   };
   const highlight = () => {
     highlightTargets.forEach((element) => element.classList.toggle("is-highlighted", element.dataset.destination === activeKey));
@@ -151,7 +151,7 @@
       }
       const selected = routes[index].dataset.route === activeKey;
       const radius = metrics ? 43 * metrics.scale : 0;
-      const maximumTravel = connection ? Math.max(0, Math.min(connection.length * 0.7, 220, connection.length - radius - 24)) : 0;
+      const maximumTravel = connection ? Math.max(0, Math.min(connection.length * 0.7, 220, connection.length - radius - 24)) * 0.5 : 0;
       const travel = selected ? maximumTravel * extensionAmount : 0;
       let terminalX = baseX;
       let terminalY = baseY;
