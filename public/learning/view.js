@@ -21,7 +21,7 @@
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", "0 0 40 40"); svg.setAttribute("class", "q-circuit"); svg.setAttribute("aria-hidden", "true");
     const part = (tag, attrs) => { const node = document.createElementNS(svg.namespaceURI, tag); for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value); svg.append(node); };
-    part("rect", { x: "4", y: "9", width: "32", height: "25", rx: "9", fill: "#fff1e3", stroke: "#e17000", "stroke-width": "2" });
+    part("rect", { x: "4", y: "9", width: "32", height: "25", rx: "9", fill: "#e170001f", stroke: "#e17000", "stroke-width": "2" });
     part("path", { d: "M20 9V4m-2 0h4", stroke: "#e17000", "stroke-width": "2", fill: "none" });
     [14, 26].forEach((x) => part("circle", { cx: x, cy: "20", r: "2", fill: "#154273" }));
     part("path", { d: mood === "caution" ? "M15 28q5-4 10 0" : mood === "celebrate" ? "M14 26q6 8 12 0" : "M16 27h8", stroke: "#154273", "stroke-width": "2", fill: "none", "stroke-linecap": "round" });
